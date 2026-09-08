@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEO Master Guide - Admin & Editor Suite</title>
+    <title>LEO Master Guide - Live Cloud Edition</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -121,7 +121,7 @@
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.85);
             display: none;
             justify-content: center;
             align-items: center;
@@ -143,11 +143,11 @@
     <header>
         <div>
             <h1>LEO Master Guide Database</h1>
-            <div style="color: var(--text-muted); font-size: 0.85rem;">Role-Based Access Control System</div>
+            <div style="color: var(--text-muted); font-size: 0.85rem;">Public View & Admin Editor Suite</div>
         </div>
         <div class="user-status">
-            <span id="roleBadge" class="role-badge role-viewer">Viewer</span>
-            <button id="authBtn" class="btn" type="button">Owner / Editor Login</button>
+            <span id="roleBadge" class="role-badge role-viewer">Public Viewer</span>
+            <button id="authBtn" class="btn" type="button">Editor Login</button>
         </div>
     </header>
 
@@ -198,19 +198,19 @@
 <!-- LOGIN MODAL -->
 <div id="loginModal" class="modal-overlay">
     <div class="modal">
-        <h3 style="margin-top:0; color: var(--accent-color);">Login Access</h3>
-        <p style="font-size: 0.8rem; color: var(--text-muted);">Enter Owner Password (ownerpass) or an Editor Key.</p>
+        <h3 style="margin-top:0; color: var(--accent-color);">Editor Login Access</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Enter Owner Password (<code>ownerpass</code>) or an Editor Key.</p>
         <input type="password" id="passInput" placeholder="Password / Key" style="margin-bottom: 15px;">
         <div style="display: flex; gap: 10px; justify-content: flex-end;">
             <button class="btn" id="cancelLoginBtn" type="button">Cancel</button>
-            <button class="btn btn-primary" id="submitLoginBtn" type="button">Submit</button>
+            <button class="btn btn-primary" id="submitLoginBtn" type="button">Login</button>
         </div>
         <div id="loginError" style="color: var(--danger-color); font-size: 0.8rem; margin-top: 10px; display: none;">Invalid Passcode!</div>
     </div>
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+window.addEventListener("load", function() {
     const defaultData = [
         { id: 1, code: "PC 2.1.1", crime: "Possession of Cocaine in small quantities", fine: "$20,000", stars: "", notes: "Confiscation", desc: "Possession of up to 4 units of cocaine.", category: "Article 2" },[cite: 1]
         { id: 2, code: "PC 2.5.1", crime: "Carrying a weapon without a license", fine: "$20,000", stars: "", notes: "Revoke Gun Lic", desc: "Carrying any weapon without a valid weapon license.", category: "Article 2" }[cite: 1]
@@ -253,11 +253,11 @@ document.addEventListener("DOMContentLoaded", function() {
             body.classList.add('is-editor');
         } else {
             badge.className = 'role-badge role-viewer';
-            badge.innerText = 'Owner / Editor Login';
+            badge.innerText = 'Editor Login';
         }
     }
 
-    document.getElementById('authBtn').addEventListener('click', function() {
+    document.getElementById('authBtn').onclick = function() {
         if (currentUserRole !== 'VIEWER') {
             currentUserRole = 'VIEWER';
             updateRoleUI();
@@ -266,13 +266,13 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('passInput').value = '';
             document.getElementById('loginError').style.display = 'none';
         }
-    });
+    };
 
-    document.getElementById('cancelLoginBtn').addEventListener('click', function() {
+    document.getElementById('cancelLoginBtn').onclick = function() {
         document.getElementById('loginModal').classList.remove('active');
-    });
+    };
 
-    document.getElementById('submitLoginBtn').addEventListener('click', function() {
+    document.getElementById('submitLoginBtn').onclick = function() {
         const pass = document.getElementById('passInput').value.trim();
         if (pass === OWNER_PASSWORD) {
             currentUserRole = 'OWNER';
@@ -285,24 +285,25 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             document.getElementById('loginError').style.display = 'block';
         }
-    });
+    };
 
-    document.getElementById('addKeyBtn').addEventListener('click', function() {
+    document.getElementById('addKeyBtn').onclick = function() {
         const key = document.getElementById('newEditorKey').value.trim();
         if (key && !activeEditorKeys.includes(key)) {
             activeEditorKeys.push(key);
             localStorage.setItem('editor_keys', JSON.stringify(activeEditorKeys));
             document.getElementById('newEditorKey').value = '';
             renderKeysList();
+            alert('Editor Key Added!');
         }
-    });
+    };
 
     function renderKeysList() {
         const list = document.getElementById('keyList');
         list.innerHTML = activeEditorKeys.map(k => `<li>Key: <code>${k}</code></li>`).join('');
     }
 
-    document.getElementById('saveEntryBtn').addEventListener('click', function() {
+    document.getElementById('saveEntryBtn').onclick = function() {
         const code = document.getElementById('addCode').value;
         const crime = document.getElementById('addCrime').value;
         const fine = document.getElementById('addFine').value;
@@ -325,7 +326,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.getElementById('addStars').value = '';
         document.getElementById('addNotes').value = '';
         document.getElementById('addDesc').value = '';
-    });
+    };
 
     window.deleteEntry = function(id) {
         if (confirm("Delete this entry?")) {
@@ -365,7 +366,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    document.getElementById('searchInput').addEventListener('input', renderCards);
+    document.getElementById('searchInput').oninput = renderCards;
     renderCards();
 });
 </script>
