@@ -62,8 +62,8 @@
                 <i class="fa-solid fa-user-gear"></i> Editor Privileges Active
             </span>
             <div class="flex gap-2">
-                <button onclick="openUserMgmtModal()" class="bg-gray-800 hover:bg-gray-700 text-blue-300 px-3 py-1.5 rounded font-bold border border-gray-700">
-                    <i class="fa-solid fa-users-gear mr-1"></i> Manage Editor Permissions
+                <button onclick="openUserMgmtModal()" class="bg-gray-800 hover:bg-gray-700 text-yellow-400 hover:text-yellow-300 px-3 py-1.5 rounded font-bold border border-gray-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-key"></i> Passwords & Permissions
                 </button>
                 <button onclick="openLawModal()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded font-bold transition">
                     <i class="fa-solid fa-plus mr-1"></i> Add New Law
@@ -82,6 +82,9 @@
             <div class="bg-leoCard p-4 rounded-lg border border-leoBorder flex flex-wrap gap-2 items-center">
                 <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider mr-2">Article Filter:</span>
                 <button onclick="setFilter('ALL')" class="filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-blue-600 text-white">All</button>
+                <button onclick="setFilter('STARRED')" class="filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-gray-800 text-yellow-400 hover:bg-gray-700 flex items-center gap-1">
+                    <i class="fa-solid fa-star text-xs"></i> Starred
+                </button>
                 <button onclick="setFilter('ART2')" class="filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-gray-800 text-gray-300 hover:bg-gray-700">Art 2: Society</button>
                 <button onclick="setFilter('ART3')" class="filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-gray-800 text-gray-300 hover:bg-gray-700">Art 3: State</button>
                 <button onclick="setFilter('ART4')" class="filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-gray-800 text-gray-300 hover:bg-gray-700">Art 4: Malfeasance</button>
@@ -94,6 +97,7 @@
                     <table class="w-full text-left text-sm">
                         <thead class="bg-gray-900 border-b border-leoBorder text-xs text-gray-400 uppercase">
                             <tr>
+                                <th class="p-3">Star</th>
                                 <th class="p-3">Action</th>
                                 <th class="p-3">Code</th>
                                 <th class="p-3">Offense / Description</th>
@@ -154,7 +158,7 @@
             <div class="space-y-3">
                 <div>
                     <label class="text-xs text-gray-400">Editor Key / Password</label>
-                    <input type="password" id="editorKeyInput" placeholder="Enter password" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700 focus:outline-none focus:border-blue-500">
+                    <input type="password" id="editorKeyInput" placeholder="Enter master password or access key" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700 focus:outline-none focus:border-blue-500">
                     <p class="text-[10px] text-gray-500 mt-1">Default Password: <span class="font-mono text-gray-400">admin123</span></p>
                 </div>
                 <button onclick="attemptLogin()" class="w-full bg-blue-600 hover:bg-blue-500 text-xs font-bold text-white py-2 rounded transition">Login as Editor</button>
@@ -210,38 +214,61 @@
         </div>
     </div>
 
-    <!-- User Permissions Management Modal -->
+    <!-- Password & Access Permissions Management Modal -->
     <div id="userMgmtModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-        <div class="bg-leoCard border border-leoBorder p-6 rounded-lg w-full max-w-md space-y-4">
-            <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+        <div class="bg-leoCard border border-leoBorder p-6 rounded-lg w-full max-w-lg space-y-5">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-3">
                 <h3 class="text-md font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-key text-yellow-500"></i> Manage Access Permissions
+                    <i class="fa-solid fa-user-shield text-yellow-500"></i> Passwords & Permissions Control
                 </h3>
                 <button onclick="closeUserMgmtModal()" class="text-gray-400 hover:text-white">&times;</button>
             </div>
             
-            <div>
-                <label class="text-xs text-gray-400">Change Editor Password</label>
-                <div class="flex gap-2 mt-1">
-                    <input type="password" id="newPassInput" placeholder="New Password" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700">
-                    <button onclick="updateEditorPassword()" class="bg-green-600 hover:bg-green-500 text-xs font-bold px-3 py-2 text-white rounded whitespace-nowrap">
+            <!-- Section 1: Change Master Password -->
+            <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-800 space-y-2">
+                <h4 class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-key text-blue-400"></i> Change Master Editor Password
+                </h4>
+                <div class="flex gap-2">
+                    <input type="password" id="newPassInput" placeholder="New Master Password" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700 focus:outline-none focus:border-blue-500">
+                    <button onclick="updateEditorPassword()" class="bg-blue-600 hover:bg-blue-500 text-xs font-bold px-3 py-2 text-white rounded whitespace-nowrap transition">
                         Update Password
                     </button>
                 </div>
             </div>
 
-            <div class="border-t border-gray-800 pt-3">
-                <h4 class="text-xs font-bold text-gray-300 mb-2">Access Rules</h4>
-                <ul class="text-xs text-gray-400 space-y-1.5 list-disc pl-4">
-                    <li>Anyone with the Editor password can add, edit, or delete laws.</li>
-                    <li>Changes persist locally in your browser storage.</li>
-                    <li>To reset all data to defaults, click reset below.</li>
-                </ul>
+            <!-- Section 2: Grant Permissions (Generate Editor Access Keys) -->
+            <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-800 space-y-2">
+                <div class="flex justify-between items-center">
+                    <h4 class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-plus text-green-400"></i> Grant Permission (Generate Access Key)
+                    </h4>
+                    <button onclick="generateAccessKey()" class="bg-green-600 hover:bg-green-500 text-xs font-bold px-3 py-1.5 text-white rounded transition flex items-center gap-1">
+                        <i class="fa-solid fa-plus"></i> Create Access Key
+                    </button>
+                </div>
+                <p class="text-[11px] text-gray-400">Issue custom access keys to give individual officers editor permission.</p>
             </div>
 
+            <!-- Section 3: Active Access Keys List (Revoke Permissions) -->
+            <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-800 space-y-2">
+                <div class="flex justify-between items-center">
+                    <h4 class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-slash text-red-400"></i> Active Access Keys & Revoke Access
+                    </h4>
+                    <button onclick="revokeAllKeys()" class="text-[11px] text-red-400 hover:text-red-300 font-semibold">
+                        Revoke All Extra Keys
+                    </button>
+                </div>
+                <div id="accessKeysList" class="max-h-32 overflow-y-auto space-y-1.5 pt-1"></div>
+            </div>
+
+            <!-- Modal Footer -->
             <div class="flex justify-between items-center border-t border-gray-800 pt-3">
-                <button onclick="resetDataToDefault()" class="text-xs text-red-400 hover:text-red-300">Reset All Laws to Default</button>
-                <button onclick="closeUserMgmtModal()" class="px-4 py-1.5 bg-gray-700 text-xs text-white rounded">Close</button>
+                <button onclick="resetDataToDefault()" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Reset System Defaults
+                </button>
+                <button onclick="closeUserMgmtModal()" class="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-xs text-white rounded">Close</button>
             </div>
         </div>
     </div>
@@ -267,7 +294,10 @@
         ];
 
         let penalData = JSON.parse(localStorage.getItem('penalData')) || initialPenalData;
+        let starredCodes = JSON.parse(localStorage.getItem('starredCodes')) || [];
         let editorPassword = localStorage.getItem('editorPassword') || 'admin123';
+        let customAccessKeys = JSON.parse(localStorage.getItem('customAccessKeys')) || [];
+        
         let isEditorMode = false;
         let currentFilter = 'ALL';
         let selectedCharges = [];
@@ -278,7 +308,11 @@
             tbody.innerHTML = '';
 
             const filtered = penalData.filter(item => {
-                const matchesFilter = (currentFilter === 'ALL' || item.art === currentFilter);
+                let matchesFilter = false;
+                if (currentFilter === 'ALL') matchesFilter = true;
+                else if (currentFilter === 'STARRED') matchesFilter = starredCodes.includes(item.code);
+                else matchesFilter = (item.art === currentFilter);
+
                 const matchesSearch = item.code.toLowerCase().includes(searchVal) || 
                                       item.crime.toLowerCase().includes(searchVal) ||
                                       item.desc.toLowerCase().includes(searchVal) ||
@@ -286,13 +320,24 @@
                 return matchesFilter && matchesSearch;
             });
 
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-xs text-gray-500">No laws found for this category or search query.</td></tr>`;
+                return;
+            }
+
             filtered.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-800/50 transition';
                 
                 const isNoBail = item.notes.toLowerCase().includes('no bail');
+                const isStarred = starredCodes.includes(item.code);
 
                 tr.innerHTML = `
+                    <td class="p-3 text-center">
+                        <button onclick="toggleStar('${item.code}')" class="text-sm transition hover:scale-125 ${isStarred ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'}">
+                            <i class="${isStarred ? 'fa-solid' : 'fa-regular'} fa-star"></i>
+                        </button>
+                    </td>
                     <td class="p-3">
                         <button onclick='addCharge("${item.code}")' class="bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white px-2 py-1 rounded transition text-xs font-bold">
                             <i class="fa-solid fa-plus"></i>
@@ -324,10 +369,20 @@
             });
         }
 
+        // Toggle Star / Favorites
+        function toggleStar(code) {
+            if (starredCodes.includes(code)) {
+                starredCodes = starredCodes.filter(c => c !== code);
+            } else {
+                starredCodes.push(code);
+            }
+            localStorage.setItem('starredCodes', JSON.stringify(starredCodes));
+            renderTable();
+        }
+
         // Auth handling
         function openLoginModal() {
             if (isEditorMode) {
-                // Logout
                 isEditorMode = false;
                 document.getElementById('roleBadge').textContent = 'PUBLIC VIEWER';
                 document.getElementById('roleBadge').className = 'text-xs font-bold px-3 py-1.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/40';
@@ -343,10 +398,13 @@
         function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
 
         function attemptLogin() {
-            const input = document.getElementById('editorKeyInput').value;
-            if (input === editorPassword) {
+            const input = document.getElementById('editorKeyInput').value.trim();
+            const isValidMaster = (input === editorPassword);
+            const isValidKey = customAccessKeys.some(k => k.key === input);
+
+            if (isValidMaster || isValidKey) {
                 isEditorMode = true;
-                document.getElementById('roleBadge').textContent = 'EDITOR MODE';
+                document.getElementById('roleBadge').textContent = isValidMaster ? 'MASTER EDITOR' : 'EDITOR MODE';
                 document.getElementById('roleBadge').className = 'text-xs font-bold px-3 py-1.5 rounded-md bg-green-500/20 text-green-300 border border-green-500/40';
                 document.getElementById('authBtn').textContent = 'Logout';
                 document.getElementById('adminControlsBar').classList.remove('hidden');
@@ -356,7 +414,7 @@
                 document.getElementById('loginError').classList.add('hidden');
                 renderTable();
             } else {
-                document.getElementById('loginError').textContent = 'Invalid Password Key';
+                document.getElementById('loginError').textContent = 'Invalid Password or Access Key';
                 document.getElementById('loginError').classList.remove('hidden');
             }
         }
@@ -414,26 +472,81 @@
             }
         }
 
-        // User Permissions Management
-        function openUserMgmtModal() { document.getElementById('userMgmtModal').classList.remove('hidden'); }
-        function closeUserMgmtModal() { document.getElementById('userMgmtModal').classList.add('hidden'); }
+        // Permissions & Passwords Management
+        function openUserMgmtModal() { 
+            renderAccessKeysList();
+            document.getElementById('userMgmtModal').classList.remove('hidden'); 
+        }
+        
+        function closeUserMgmtModal() { 
+            document.getElementById('userMgmtModal').classList.add('hidden'); 
+        }
 
         function updateEditorPassword() {
-            const newPass = document.getElementById('newPassInput').value;
-            if (newPass.length > 2) {
+            const newPass = document.getElementById('newPassInput').value.trim();
+            if (newPass.length >= 3) {
                 editorPassword = newPass;
                 localStorage.setItem('editorPassword', newPass);
-                alert('Editor password updated successfully.');
+                alert('Master Editor password updated successfully!');
                 document.getElementById('newPassInput').value = '';
             } else {
                 alert('Password must be at least 3 characters long.');
             }
         }
 
+        function generateAccessKey() {
+            const note = prompt("Enter Officer Name or Reason for Access Key:", "Officer Key");
+            if (note) {
+                const randomCode = 'KEY-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+                customAccessKeys.push({ key: randomCode, label: note, createdAt: new Date().toLocaleDateString() });
+                localStorage.setItem('customAccessKeys', JSON.stringify(customAccessKeys));
+                renderAccessKeysList();
+            }
+        }
+
+        function revokeKey(index) {
+            if (confirm("Revoke editor access for this key?")) {
+                customAccessKeys.splice(index, 1);
+                localStorage.setItem('customAccessKeys', JSON.stringify(customAccessKeys));
+                renderAccessKeysList();
+            }
+        }
+
+        function revokeAllKeys() {
+            if (confirm("Are you sure you want to revoke ALL extra access keys?")) {
+                customAccessKeys = [];
+                localStorage.setItem('customAccessKeys', JSON.stringify(customAccessKeys));
+                renderAccessKeysList();
+            }
+        }
+
+        function renderAccessKeysList() {
+            const container = document.getElementById('accessKeysList');
+            if (customAccessKeys.length === 0) {
+                container.innerHTML = `<p class="text-[11px] text-gray-500 text-center py-2">No active custom access keys generated.</p>`;
+                return;
+            }
+
+            container.innerHTML = customAccessKeys.map((k, i) => `
+                <div class="flex justify-between items-center bg-gray-800/80 p-2 rounded border border-gray-700 text-xs">
+                    <div>
+                        <span class="font-mono font-bold text-yellow-400 mr-2">${k.key}</span>
+                        <span class="text-gray-300 text-[11px]">(${k.label})</span>
+                    </div>
+                    <button onclick="revokeKey(${i})" class="text-xs text-red-400 hover:text-red-300 font-bold px-2 py-0.5 rounded bg-red-950/40 border border-red-800/60">
+                        Revoke Access
+                    </button>
+                </div>
+            `).join('');
+        }
+
         function resetDataToDefault() {
-            if (confirm("Reset penal codes back to initial defaults?")) {
+            if (confirm("Reset penal codes and passwords back to initial system defaults?")) {
                 penalData = initialPenalData;
-                localStorage.removeItem('penalData');
+                starredCodes = [];
+                customAccessKeys = [];
+                editorPassword = 'admin123';
+                localStorage.clear();
                 renderTable();
                 closeUserMgmtModal();
             }
