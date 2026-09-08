@@ -34,14 +34,43 @@
                 </div>
             </div>
             
-            <!-- Quick Search Bar -->
-            <div class="relative w-full md:w-96">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="searchInput" oninput="filterData()" placeholder="Search code, crime name, notes..." 
-                    class="w-full bg-gray-800 text-sm text-white pl-10 pr-4 py-2 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500">
+            <div class="flex items-center gap-4 w-full md:w-auto justify-end">
+                <!-- Search Bar -->
+                <div class="relative w-full md:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchInput" oninput="filterData()" placeholder="Search code, crime..." 
+                        class="w-full bg-gray-800 text-xs text-white pl-9 pr-3 py-2 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500">
+                </div>
+
+                <!-- Access Status Controls -->
+                <div class="flex items-center gap-2 bg-gray-800 p-1 rounded-lg border border-gray-700">
+                    <span id="roleBadge" class="text-xs font-bold px-3 py-1.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/40">
+                        PUBLIC VIEWER
+                    </span>
+                    <button id="authBtn" onclick="openLoginModal()" class="text-xs font-semibold px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-white transition border border-gray-600">
+                        Editor Login
+                    </button>
+                </div>
             </div>
         </div>
     </header>
+
+    <!-- Admin Bar (Visible only to Editors) -->
+    <div id="adminControlsBar" class="hidden bg-blue-950/40 border-b border-blue-800/50 py-2 px-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center text-xs">
+            <span class="text-blue-300 font-semibold flex items-center gap-2">
+                <i class="fa-solid fa-user-gear"></i> Editor Privileges Active
+            </span>
+            <div class="flex gap-2">
+                <button onclick="openUserMgmtModal()" class="bg-gray-800 hover:bg-gray-700 text-blue-300 px-3 py-1.5 rounded font-bold border border-gray-700">
+                    <i class="fa-solid fa-users-gear mr-1"></i> Manage Editor Permissions
+                </button>
+                <button onclick="openLawModal()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded font-bold transition">
+                    <i class="fa-solid fa-plus mr-1"></i> Add New Law
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content Grid -->
     <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow w-full">
@@ -59,7 +88,7 @@
                 <button onclick="setFilter('ART5')" class="filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-gray-800 text-gray-300 hover:bg-gray-700">Art 5: Judicial</button>
             </div>
 
-            <!-- Penal Code Table Container -->
+            <!-- Table -->
             <div class="bg-leoCard rounded-lg border border-leoBorder overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
@@ -70,17 +99,16 @@
                                 <th class="p-3">Offense / Description</th>
                                 <th class="p-3">Fine</th>
                                 <th class="p-3">Notes</th>
+                                <th class="p-3 admin-col hidden">Editor Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="penalTableBody" class="divide-y divide-gray-800">
-                            <!-- Dynamic Content Rendered via JS -->
-                        </tbody>
+                        <tbody id="penalTableBody" class="divide-y divide-gray-800"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- Right 1 Column: Active Arrest / Fine Aggregator Sidebar -->
+        <!-- Sidebar Calculator -->
         <section class="lg:col-span-1">
             <div class="bg-leoCard p-4 rounded-lg border border-leoBorder sticky top-24 space-y-4">
                 <div class="flex justify-between items-center border-b border-gray-800 pb-3">
@@ -101,11 +129,9 @@
                     </div>
                     <div class="flex justify-between text-xs text-gray-400">
                         <span>Bail Status:</span>
-                        <span id="bailStatus" class="font-bold text-green-500">ELGIBLE FOR BAIL</span>
+                        <span id="bailStatus" class="font-bold text-green-500">ELIGIBLE FOR BAIL</span>
                     </div>
-                    <div id="specialNotes" class="hidden text-xs bg-yellow-900/30 border border-yellow-700 text-yellow-300 p-2 rounded">
-                        <!-- Special conditions show up here -->
-                    </div>
+                    <div id="specialNotes" class="hidden text-xs bg-yellow-900/30 border border-yellow-700 text-yellow-300 p-2 rounded"></div>
                 </div>
 
                 <button onclick="window.print()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs py-2.5 rounded-md transition flex items-center justify-center gap-2">
@@ -113,12 +139,115 @@
                 </button>
             </div>
         </section>
-
     </main>
 
+    <!-- Editor Login Modal -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+        <div class="bg-leoCard border border-leoBorder p-6 rounded-lg w-full max-w-sm space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-md font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-lock text-blue-500"></i> Editor Access Login
+                </h3>
+                <button onclick="closeLoginModal()" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <div id="loginError" class="hidden text-xs text-red-400 bg-red-900/30 p-2 rounded border border-red-800"></div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-gray-400">Editor Key / Password</label>
+                    <input type="password" id="editorKeyInput" placeholder="Enter password" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700 focus:outline-none focus:border-blue-500">
+                    <p class="text-[10px] text-gray-500 mt-1">Default Password: <span class="font-mono text-gray-400">admin123</span></p>
+                </div>
+                <button onclick="attemptLogin()" class="w-full bg-blue-600 hover:bg-blue-500 text-xs font-bold text-white py-2 rounded transition">Login as Editor</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Law Modal -->
+    <div id="lawModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+        <div class="bg-leoCard border border-leoBorder p-6 rounded-lg w-full max-w-md space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 id="lawModalTitle" class="text-md font-bold text-white">Add New Penal Code</h3>
+                <button onclick="closeLawModal()" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <input type="hidden" id="editIndex" value="-1">
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-xs text-gray-400">Code</label>
+                    <input type="text" id="inputCode" placeholder="PC 2.1.1" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700">
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400">Fine ($)</label>
+                    <input type="number" id="inputFine" placeholder="20000" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700">
+                </div>
+            </div>
+            <div>
+                <label class="text-xs text-gray-400">Crime Title</label>
+                <input type="text" id="inputCrime" placeholder="Possession of Cocaine" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-xs text-gray-400">Article Category</label>
+                    <select id="inputArt" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700">
+                        <option value="ART2">Article 2: Society</option>
+                        <option value="ART3">Article 3: State</option>
+                        <option value="ART4">Article 4: Malfeasance</option>
+                        <option value="ART5">Article 5: Judicial</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-400">Notes / Bail</label>
+                    <input type="text" id="inputNotes" placeholder="Confiscation / No Bail" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700">
+                </div>
+            </div>
+            <div>
+                <label class="text-xs text-gray-400">Description</label>
+                <textarea id="inputDesc" placeholder="Detailed description of the crime..." class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700 h-20"></textarea>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeLawModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-xs text-white rounded">Cancel</button>
+                <button onclick="saveLaw()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-xs font-bold text-white rounded">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Permissions Management Modal -->
+    <div id="userMgmtModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+        <div class="bg-leoCard border border-leoBorder p-6 rounded-lg w-full max-w-md space-y-4">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                <h3 class="text-md font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-key text-yellow-500"></i> Manage Access Permissions
+                </h3>
+                <button onclick="closeUserMgmtModal()" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+            
+            <div>
+                <label class="text-xs text-gray-400">Change Editor Password</label>
+                <div class="flex gap-2 mt-1">
+                    <input type="password" id="newPassInput" placeholder="New Password" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700">
+                    <button onclick="updateEditorPassword()" class="bg-green-600 hover:bg-green-500 text-xs font-bold px-3 py-2 text-white rounded whitespace-nowrap">
+                        Update Password
+                    </button>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-3">
+                <h4 class="text-xs font-bold text-gray-300 mb-2">Access Rules</h4>
+                <ul class="text-xs text-gray-400 space-y-1.5 list-disc pl-4">
+                    <li>Anyone with the Editor password can add, edit, or delete laws.</li>
+                    <li>Changes persist locally in your browser storage.</li>
+                    <li>To reset all data to defaults, click reset below.</li>
+                </ul>
+            </div>
+
+            <div class="flex justify-between items-center border-t border-gray-800 pt-3">
+                <button onclick="resetDataToDefault()" class="text-xs text-red-400 hover:text-red-300">Reset All Laws to Default</button>
+                <button onclick="closeUserMgmtModal()" class="px-4 py-1.5 bg-gray-700 text-xs text-white rounded">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const penalData = [
-            // ARTICLE 2
+        const initialPenalData = [
             { code: "PC 2.1.1", crime: "Possession of Cocaine (Small)", fine: 20000, notes: "Confiscation", desc: "Possession of up to 4 units of cocaine.", art: "ART2" },
             { code: "PC 2.1.2", crime: "Possession of Cocaine (Moderate)", fine: 30000, notes: "Confiscation", desc: "Possession of 5 to 8 units of cocaine.", art: "ART2" },
             { code: "PC 2.1.3", crime: "Possession of Cocaine w/ Intent to Supply", fine: 15000, notes: "Confiscation", desc: "Possession of cocaine over 8 units.", art: "ART2" },
@@ -131,128 +260,15 @@
             { code: "PC 2.2.6", crime: "Production of Cannabis", fine: 45000, notes: "Confiscation", desc: "Manufacturing Cannabis using modulated equipment.", art: "ART2" },
             { code: "PC 2.3", crime: "Usage of Illicit Substances in Public", fine: 10000, notes: "Confiscation", desc: "Using drugs or alcohol in public.", art: "ART2" },
             { code: "PC 2.4.1", crime: "Prohibited Items (Small Quantity)", fine: 15000, notes: "Class A Infraction/Confiscation", desc: "Possession of up to 3 illegal items.", art: "ART2" },
-            { code: "PC 2.4.2", crime: "Prohibited Items (Large Quantity)", fine: 15000, notes: "Confiscation", desc: "Possession of more than 3 illegal items.", art: "ART2" },
-            { code: "PC 2.4.3", crime: "Sale of Prohibited Item", fine: 25000, notes: "Confiscation", desc: "Selling or purchasing items from illegal list.", art: "ART2" },
-            { code: "PC 2.4.4", crime: "Infected Tech with Malicious Intent", fine: 35000, notes: "Confiscation", desc: "Possession of a USB with a virus.", art: "ART2" },
-            { code: "PC 2.5.1", crime: "Carrying Weapon Without License", fine: 20000, notes: "Class A/Revoke Gun License", desc: "Carrying any weapon without a valid license.", art: "ART2" },
-            { code: "PC 2.5.2", crime: "Overcarrying Weapons", fine: 20000, notes: "Confiscation/Revoke Gun License", desc: "Carrying more than prescribed amount of weapons/ammo.", art: "ART2" },
-            { code: "PC 2.5.3", crime: "Open Carrying Weapon", fine: 10000, notes: "Confiscation/Revoke Gun License", desc: "Open carrying a weapon in public.", art: "ART2" },
-            { code: "PC 2.5.4", crime: "Possession of Prohibited Weapon", fine: 20000, notes: "Class A/Confiscation", desc: "Possession of a prohibited weapon.", art: "ART2" },
-            { code: "PC 2.5.5", crime: "Multiple Prohibited Weapons", fine: 20000, notes: "Confiscation/Revoke Gun License", desc: "Possession of more than one prohibited weapon.", art: "ART2" },
-            { code: "PC 2.5.6", crime: "Brandishing of a Weapon", fine: 25000, notes: "Confiscation/Revoke Gun License", desc: "Using a weapon to intimidate or threaten.", art: "ART2" },
-            { code: "PC 2.5.7", crime: "Possession of State Issued Articles", fine: 20000, notes: "Confiscation", desc: "Possession of state weapons, armour, balaclavas.", art: "ART2" },
-            { code: "PC 2.5.8", crime: "Discharging Weapon in Public", fine: 10000, notes: "Confiscation/Revoke Gun License", desc: "Shooting a weapon in public not at a person.", art: "ART2" },
-            { code: "PC 2.5.9", crime: "Distribution of Weapons/Ammo/State Goods", fine: 50000, notes: "Confiscation/Revoke Gun License", desc: "Selling/buying weapons, ammo, state goods.", art: "ART2" },
-            { code: "PC 2.5.10", crime: "Production of Ammunition", fine: 50000, notes: "Confiscation/Revoke Gun License", desc: "Manufacturing ammo using equipment.", art: "ART2" },
-            { code: "PC 2.6.1", crime: "Non-lethal Battery", fine: 10000, notes: "None", desc: "Inflicting bodily harm without firearms.", art: "ART2" },
-            { code: "PC 2.6.2", crime: "Manslaughter", fine: 15000, notes: "None", desc: "Unintentionally killing another person(s).", art: "ART2" },
-            { code: "PC 2.6.3", crime: "Assault by Threat", fine: 10000, notes: "None", desc: "Verbal assault with execution likelihood.", art: "ART2" },
             { code: "PC 2.6.4", crime: "Attempted Murder", fine: 20000, notes: "No Bail", desc: "Attempting to kill a person (revived).", art: "ART2" },
-            { code: "PC 2.6.5", crime: "Murder through Hostile Action", fine: 30000, notes: "No Bail", desc: "Killing a person (finished).", art: "ART2" },
-            { code: "PC 2.6.6", crime: "Rape / Sexual Assault", fine: 50000, notes: "None", desc: "Sexual intercourse against a person's will.", art: "ART2" },
-            { code: "PC 2.7.1", crime: "Failure to Act", fine: 10000, notes: "None", desc: "Leaving a person to bleed out.", art: "ART2" },
-            { code: "PC 2.7.2", crime: "Refusal of Duty to Act", fine: 60000, notes: "Dismissal from position", desc: "Refusing to act in public interest by state employee.", art: "ART2" },
-            { code: "PC 2.7.3", crime: "Failure to Act by Public Servant", fine: 0, notes: "Dismissal from position", desc: "Public servant leaving a person to bleed out.", art: "ART2" },
-            { code: "PC 2.7.4", crime: "Abandonment of Civilian by Servant", fine: 0, notes: "Dismissal from position", desc: "Leaving a vulnerable civilian in your charge.", art: "ART2" },
-            { code: "PC 2.8.1", crime: "Abduction", fine: 20000, notes: "No Bail", desc: "Taking someone by force or deception.", art: "ART2" },
-            { code: "PC 2.8.2", crime: "Kidnapping", fine: 25000, notes: "No Bail", desc: "Taking someone and holding them captive.", art: "ART2" },
-            { code: "PC 2.8.3", crime: "Taking a Hostage", fine: 30000, notes: "No Bail", desc: "Taking someone in exchange for something.", art: "ART2" },
-            { code: "PC 2.8.4", crime: "Human Trafficking", fine: 50000, notes: "No Bail", desc: "Forced labor or commercial sex trafficking.", art: "ART2" },
-            { code: "PC 2.8.5", crime: "Violation of Privacy", fine: 20000, notes: "None", desc: "Infringing on right to privacy.", art: "ART2" },
-            { code: "PC 2.8.6", crime: "Unlawful Detention", fine: 20000, notes: "None", desc: "Unwarranted detention of citizen by public servant.", art: "ART2" },
-            { code: "PC 2.9.1", crime: "Street Harassment", fine: 10000, notes: "None", desc: "Rude/unwelcome derogatory comments.", art: "ART2" },
-            { code: "PC 2.9.2", crime: "Sexual Harassment", fine: 150000, notes: "None", desc: "Harassment of a sexual nature.", art: "ART2" },
-            { code: "PC 2.9.3", crime: "Stalking", fine: 35000, notes: "No Bail", desc: "Following/harassing causing fear of injury/death.", art: "ART2" },
-            { code: "PC 2.9.4", crime: "Hooliganism", fine: 20000, notes: "None", desc: "Massive disturbance of the peace.", art: "ART2" },
-            { code: "PC 2.9.5", crime: "Rioting / Inciting a Riot", fine: 35000, notes: "None", desc: "Encouraging peace disturbance by 3+ people.", art: "ART2" },
-            { code: "PC 2.9.6", crime: "Spreading of Disease", fine: 10000, notes: "Class A Infraction", desc: "Spreading disease intentionally.", art: "ART2" },
-            { code: "PC 2.9.7", crime: "Indecent Exposure", fine: 20000, notes: "None", desc: "Showing private areas against decency standards.", art: "ART2" },
-            { code: "PC 2.9.8", crime: "Provoking", fine: 10000, notes: "None", desc: "Causing someone to react via annoying/harassment.", art: "ART2" },
-            { code: "PC 2.9.9", crime: "Engaging in Prostitution", fine: 5000, notes: "None", desc: "Buying or selling sexual desires.", art: "ART2" },
-            { code: "PC 2.9.10", crime: "Defamation of Character", fine: 50000, notes: "Judge Verdict Only", desc: "Damaging reputation via slander/libel.", art: "ART2" },
-            { code: "PC 2.9.11", crime: "Harassment of a Public Servant", fine: 30000, notes: "None", desc: "Harassing a public servant.", art: "ART2" },
-            { code: "PC 2.10.1", crime: "Document Forgery", fine: 15000, notes: "Confiscation of Documents", desc: "Creating false document for deception.", art: "ART2" },
-            { code: "PC 2.10.2", crime: "Looting of an ATM", fine: 8000, notes: "Confiscation", desc: "Robbing an ATM.", art: "ART2" },
-            { code: "PC 2.10.3", crime: "Theft of Property", fine: 20000, notes: "None", desc: "Taking someone's stuff without consent.", art: "ART2" },
-            { code: "PC 2.10.4", crime: "Fraud", fine: 20000, notes: "None", desc: "Defrauding someone or something.", art: "ART2" },
             { code: "PC 2.10.5", crime: "Grand Theft Auto", fine: 30000, notes: "None", desc: "Taking a vehicle without permission.", art: "ART2" },
-            { code: "PC 2.10.6", crime: "Robbery", fine: 35000, notes: "No Bail", desc: "Theft with force or threat.", art: "ART2" },
-            { code: "PC 2.10.7", crime: "False Advertising", fine: 10000, notes: "Class A Infraction", desc: "Distributing an advertisement that is untrue.", art: "ART2" },
-            { code: "PC 2.11.1", crime: "Reckless Driving", fine: 20000, notes: "Revoke Driving License", desc: "Operating motor vehicle negligently.", art: "ART2" },
-            { code: "PC 2.11.2", crime: "Causing Injury by Dangerous Driving", fine: 20000, notes: "Revoke Driving License", desc: "Hurting someone using a vehicle.", art: "ART2" },
-            { code: "PC 2.11.3", crime: "Causing Death by Dangerous Driving", fine: 30000, notes: "Revoke License / No Bail", desc: "Killing someone using a vehicle.", art: "ART2" },
-            { code: "PC 2.11.4", crime: "Failure to Yield to Emergency Vehicle", fine: 10000, notes: "Revoke Driving License", desc: "Not stopping for emergency vehicle with lights.", art: "ART2" },
-            { code: "PC 2.12.1", crime: "Animal Abuse (Minor)", fine: 20000, notes: "None", desc: "Hurting an animal deliberately.", art: "ART2" },
-            { code: "PC 2.12.2", crime: "Animal Abuse (Major)", fine: 30000, notes: "None", desc: "Significantly hurting an animal.", art: "ART2" },
-            { code: "PC 2.12.3", crime: "Animal Abuse (Death)", fine: 30000, notes: "No Bail", desc: "Killing an animal.", art: "ART2" },
-            { code: "PC 2.13.1", crime: "Attempted Suicide", fine: 20000, notes: "EMS Mental Health Check", desc: "Trying to kill one's self. (Fine can swap for EMS check)", art: "ART2" },
-            { code: "PC 2.13.2", crime: "Conspiracy to Commit a Crime", fine: 20000, notes: "None", desc: "Plotting to commit a crime.", art: "ART2" },
-            { code: "PC 2.13.3", crime: "Vandalism", fine: 30000, notes: "None", desc: "Destroying belongings of another person.", art: "ART2" },
-            { code: "PC 2.13.4", crime: "Illegal Fishing", fine: 10000, notes: "Class B Infraction", desc: "Fishing in mirror park.", art: "ART2" },
-            { code: "PC 2.13.5", crime: "Breach of Contract", fine: 0, notes: "Class A / Pay fine option", desc: "Breaking signed contractual agreement.", art: "ART2" },
-            { code: "PC 2.13.6", crime: "Entrapment", fine: 100000, notes: "Judge Verdict Only", desc: "Tricking someone into committing crime.", art: "ART2" },
-            { code: "PC 2.13.7", crime: "Temp Structure Without Permit", fine: 15000, notes: "Class B Infraction", desc: "Placing barricade down without permit.", art: "ART2" },
-            { code: "PC 2.13.8", crime: "Temp Structure on Roadway", fine: 15000, notes: "None", desc: "Placing barricade on road without permit.", art: "ART2" },
-            { code: "PC 2.13.9", crime: "Failure to Maintain Photo Passport", fine: 10000, notes: "Class C Infraction", desc: "Possessing passport without valid photo.", art: "ART2" },
-
-            // ARTICLE 3
-            { code: "PC 3.1.1", crime: "Participation in Terrorism", fine: 50000, notes: "None", desc: "Using violence/intimidation for political aims.", art: "ART3" },
-            { code: "PC 3.1.2", crime: "Organization of Terrorism", fine: 75000, notes: "None", desc: "Organizing & recruiting for terrorism.", art: "ART3" },
-            { code: "PC 3.1.3", crime: "Leading Terrorist Organization", fine: 100000, notes: "None", desc: "Leading a terrorist organization.", art: "ART3" },
-            { code: "PC 3.1.4", crime: "Committing Terrorist Act", fine: 50000, notes: "None", desc: "Committing a terrorist act.", art: "ART3" },
-            { code: "PC 3.1.5", crime: "Creation of Stable Armed Group", fine: 35000, notes: "No Bail", desc: "Creating armed group to commit crimes.", art: "ART3" },
-            { code: "PC 3.1.6", crime: "Banditry", fine: 25000, notes: "No Bail", desc: "Committing organized crime.", art: "ART3" },
-            { code: "PC 3.2", crime: "Obstruction of Justice", fine: 35000, notes: "None", desc: "Willfully interfering with process of justice.", art: "ART3" },
-            { code: "PC 3.3", crime: "Attempted Seizure of Power", fine: 75000, notes: "None", desc: "Attempting to seize power.", art: "ART3" },
-            { code: "PC 3.4.1", crime: "Trespassing Private Property", fine: 20000, notes: "None", desc: "Entering/loitering unlawfully on private land.", art: "ART3" },
-            { code: "PC 3.4.2", crime: "Trespassing State Facility", fine: 30000, notes: "None", desc: "Trespassing state facility behind locked gates.", art: "ART3" },
-            { code: "PC 3.4.3", crime: "Breaking and Entering", fine: 35000, notes: "None", desc: "Forcing unlawful passage into building.", art: "ART3" },
             { code: "PC 3.5", crime: "Failure to Comply", fine: 35000, notes: "None", desc: "Not cooperating with lawful requests of state employee.", art: "ART3" },
-            { code: "PC 3.6", crime: "Failure to Identify", fine: 10000, notes: "None", desc: "Not identifying to state employee after request.", art: "ART3" },
-            { code: "PC 3.7", crime: "Illegal Gambling", fine: 20000, notes: "None", desc: "Gambling outside of authorized casino.", art: "ART3" },
-            { code: "PC 3.8.1", crime: "Impersonating Public Servant", fine: 35000, notes: "None", desc: "Pretending to be a public servant.", art: "ART3" },
-            { code: "PC 3.8.2", crime: "Impersonating LEO", fine: 35000, notes: "None", desc: "Pretending to be a Law Enforcement Officer.", art: "ART3" },
-            { code: "PC 3.9.1", crime: "Breach of Electoral Silence", fine: 25000, notes: "None", desc: "Campaigning during active voting times.", art: "ART3" },
-            { code: "PC 3.9.2", crime: "Breach of Electoral Silence at Booth", fine: 50000, notes: "None", desc: "Campaigning near voting booth.", art: "ART3" },
-            { code: "PC 3.9.3", crime: "Blocking Voting Site", fine: 35000, notes: "None", desc: "Blocking/limiting access to voting booths.", art: "ART3" },
-            { code: "PC 3.9.4", crime: "Illegal Persuasion of Votes", fine: 35000, notes: "None", desc: "Exchanging favors for votes.", art: "ART3" },
-            { code: "PC 3.10", crime: "Battery of Public Servant", fine: 15000, notes: "None", desc: "Bodily harm without firearm on state employee.", art: "ART3" },
-            { code: "PC 3.11", crime: "Murder/Attempt Murder Public Servant", fine: 35000, notes: "No Bail", desc: "Killing or trying to kill public servant.", art: "ART3" },
-            { code: "PC 3.12", crime: "False Reporting", fine: 20000, notes: "None", desc: "Alerting authorities with false details.", art: "ART3" },
-            { code: "PC 3.13.1", crime: "Active Bribery", fine: 20000, notes: "None", desc: "Offering money/favor to person of trust.", art: "ART3" },
-            { code: "PC 3.13.2", crime: "Passive Bribery", fine: 50000, notes: "None", desc: "Taking bribe to influence judgment.", art: "ART3" },
-            { code: "PC 3.13.3", crime: "Quid Pro Quo", fine: 50000, notes: "None", desc: "Favor/advantage given in return for something.", art: "ART3" },
-            { code: "PC 3.14", crime: "Failure to Pay Fines", fine: 20000, notes: "No Bail Until Paid", desc: "Being at max fines and refusing payment.", art: "ART3" },
-            { code: "PC 3.15.1", crime: "Evading Arrest", fine: 20000, notes: "No Bail", desc: "Fleeing LEO attempting arrest/detention.", art: "ART3" },
-            { code: "PC 3.15.2", crime: "Assisting Evasion of Arrest", fine: 20000, notes: "No Bail", desc: "Assisting a person evading arrest.", art: "ART3" },
-            { code: "PC 3.15.3", crime: "Assisting Evasion by Public Servant", fine: 75000, notes: "No Bail", desc: "Public servant assisting arrest evasion.", art: "ART3" },
-            { code: "PC 3.16.1", crime: "Harassment Towards Colleague", fine: 20000, notes: "Dismissal from position", desc: "Street harassment toward a colleague.", art: "ART3" },
-            { code: "PC 3.16.2", crime: "Hostile Work Environment", fine: 50000, notes: "Dismissal from position", desc: "Making work environment difficult/uncomfortable.", art: "ART3" },
-            { code: "PC 3.16.3", crime: "Sexual Harassment Towards Colleague", fine: 50000, notes: "Dismissal from position", desc: "Sexually harassing a colleague.", art: "ART3" },
-            { code: "PC 3.17", crime: "Absent Without Leave (AWOL)", fine: 50000, notes: "Dismissal from position", desc: "Absent from military duties without authority.", art: "ART3" },
-            { code: "PC 3.18", crime: "Provoking Public Servant", fine: 20000, notes: "None", desc: "Provoking a public servant.", art: "ART3" },
-            { code: "PC 3.19", crime: "Tax Evasion", fine: 100000, notes: "Max Warrant Fine: $100k", desc: "Avoiding taxes illegally.", art: "ART3" },
-            { code: "PC 3.20", crime: "Cyber Attack on State Resources", fine: 25000, notes: "None", desc: "Hacking state network.", art: "ART3" },
-            { code: "PC 3.21", crime: "Unfair Dismissal", fine: 0, notes: "Court Verdict Subject", desc: "Dismissing employee without protocol/evidence.", art: "ART3" },
-
-            // ARTICLE 4
-            { code: "PC 4.1", crime: "Disobeying an Order", fine: 20000, notes: "No Bail", desc: "Refusing order given by superior.", art: "ART4" },
-            { code: "PC 4.2", crime: "Professional Misconduct", fine: 75000, notes: "None", desc: "Unsuitable, dangerous or abusive behavior.", art: "ART4" },
-            { code: "PC 4.3", crime: "Sabotage", fine: 75000, notes: "None", desc: "Damaging state goods/property to hinder ops.", art: "ART4" },
-            { code: "PC 4.4", crime: "Espionage", fine: 75000, notes: "None", desc: "Spying on person/company/government.", art: "ART4" },
-            { code: "PC 4.5", crime: "Conduct Unbecoming", fine: 75000, notes: "None", desc: "Acting against public interest harming standing.", art: "ART4" },
-            { code: "PC 4.6", crime: "Corruption", fine: 75000, notes: "None", desc: "Dishonest/fraudulent behavior by state employee.", art: "ART4" },
-
-            // ARTICLE 5
-            { code: "PC 5.1", crime: "Disobeying Judicial Order", fine: 20000, notes: "No Bail", desc: "Failing to follow Governor/AG/Judge order.", art: "ART5" },
-            { code: "PC 5.2", crime: "Disruption of a Trial", fine: 20000, notes: "No Bail", desc: "Disrupting legal processes in court.", art: "ART5" },
-            { code: "PC 5.3", crime: "Dishonoring Judiciary Member", fine: 20000, notes: "No Bail", desc: "Dishonoring judicial officer performance.", art: "ART5" },
-            { code: "PC 5.4", crime: "Contempt of Court", fine: 20000, notes: "No Bail", desc: "Being disobedient in court.", art: "ART5" },
-            { code: "PC 5.5", crime: "Misuse of Judiciary Permit", fine: 20000, notes: "No Bail", desc: "Misuse of a judicial permit.", art: "ART5" },
-            { code: "PC 5.6", crime: "Forged Evidence", fine: 20000, notes: "No Bail", desc: "Tampering or forging evidence.", art: "ART5" },
-            { code: "PC 5.7", crime: "Perjury", fine: 20000, notes: "No Bail", desc: "Swearing false oath in official proceedings.", art: "ART5" }
+            { code: "PC 3.15.1", crime: "Evading Arrest", fine: 20000, notes: "No Bail", desc: "Fleeing LEO attempting arrest/detention.", art: "ART3" }
         ];
 
+        let penalData = JSON.parse(localStorage.getItem('penalData')) || initialPenalData;
+        let editorPassword = localStorage.getItem('editorPassword') || 'admin123';
+        let isEditorMode = false;
         let currentFilter = 'ALL';
         let selectedCharges = [];
 
@@ -270,7 +286,7 @@
                 return matchesFilter && matchesSearch;
             });
 
-            filtered.forEach(item => {
+            filtered.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-gray-800/50 transition';
                 
@@ -287,17 +303,143 @@
                         <div class="font-semibold text-gray-100">${item.crime}</div>
                         <div class="text-xs text-gray-400">${item.desc}</div>
                     </td>
-                    <td class="p-3 font-semibold text-green-400 whitespace-nowrap">$${item.fine.toLocaleString()}</td>
+                    <td class="p-3 font-semibold text-green-400 whitespace-nowrap">$${Number(item.fine).toLocaleString()}</td>
                     <td class="p-3 text-xs whitespace-nowrap">
                         <span class="px-2 py-0.5 rounded ${isNoBail ? 'bg-red-900/40 text-red-400 border border-red-700' : 'bg-gray-800 text-gray-300'}">
                             ${item.notes}
                         </span>
+                    </td>
+                    <td class="p-3 text-xs whitespace-nowrap admin-col ${isEditorMode ? '' : 'hidden'}">
+                        <div class="flex gap-2">
+                            <button onclick="openLawModal(${index})" class="text-blue-400 hover:text-blue-300">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="deleteLaw(${index})" class="text-red-400 hover:text-red-300">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
+        // Auth handling
+        function openLoginModal() {
+            if (isEditorMode) {
+                // Logout
+                isEditorMode = false;
+                document.getElementById('roleBadge').textContent = 'PUBLIC VIEWER';
+                document.getElementById('roleBadge').className = 'text-xs font-bold px-3 py-1.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/40';
+                document.getElementById('authBtn').textContent = 'Editor Login';
+                document.getElementById('adminControlsBar').classList.add('hidden');
+                document.querySelectorAll('.admin-col').forEach(el => el.classList.add('hidden'));
+                renderTable();
+            } else {
+                document.getElementById('loginModal').classList.remove('hidden');
+            }
+        }
+
+        function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
+
+        function attemptLogin() {
+            const input = document.getElementById('editorKeyInput').value;
+            if (input === editorPassword) {
+                isEditorMode = true;
+                document.getElementById('roleBadge').textContent = 'EDITOR MODE';
+                document.getElementById('roleBadge').className = 'text-xs font-bold px-3 py-1.5 rounded-md bg-green-500/20 text-green-300 border border-green-500/40';
+                document.getElementById('authBtn').textContent = 'Logout';
+                document.getElementById('adminControlsBar').classList.remove('hidden');
+                document.querySelectorAll('.admin-col').forEach(el => el.classList.remove('hidden'));
+                closeLoginModal();
+                document.getElementById('editorKeyInput').value = '';
+                document.getElementById('loginError').classList.add('hidden');
+                renderTable();
+            } else {
+                document.getElementById('loginError').textContent = 'Invalid Password Key';
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        // Law CRUD
+        function openLawModal(index = -1) {
+            document.getElementById('editIndex').value = index;
+            if (index >= 0) {
+                const law = penalData[index];
+                document.getElementById('lawModalTitle').textContent = 'Edit Penal Code';
+                document.getElementById('inputCode').value = law.code;
+                document.getElementById('inputCrime').value = law.crime;
+                document.getElementById('inputFine').value = law.fine;
+                document.getElementById('inputArt').value = law.art;
+                document.getElementById('inputNotes').value = law.notes;
+                document.getElementById('inputDesc').value = law.desc;
+            } else {
+                document.getElementById('lawModalTitle').textContent = 'Add New Penal Code';
+                document.getElementById('inputCode').value = '';
+                document.getElementById('inputCrime').value = '';
+                document.getElementById('inputFine').value = '';
+                document.getElementById('inputArt').value = 'ART2';
+                document.getElementById('inputNotes').value = '';
+                document.getElementById('inputDesc').value = '';
+            }
+            document.getElementById('lawModal').classList.remove('hidden');
+        }
+
+        function closeLawModal() { document.getElementById('lawModal').classList.add('hidden'); }
+
+        function saveLaw() {
+            const index = parseInt(document.getElementById('editIndex').value);
+            const newLaw = {
+                code: document.getElementById('inputCode').value,
+                crime: document.getElementById('inputCrime').value,
+                fine: parseInt(document.getElementById('inputFine').value) || 0,
+                art: document.getElementById('inputArt').value,
+                notes: document.getElementById('inputNotes').value || 'None',
+                desc: document.getElementById('inputDesc').value
+            };
+
+            if (index >= 0) penalData[index] = newLaw;
+            else penalData.push(newLaw);
+
+            localStorage.setItem('penalData', JSON.stringify(penalData));
+            closeLawModal();
+            renderTable();
+        }
+
+        function deleteLaw(index) {
+            if (confirm("Are you sure you want to delete this penal code?")) {
+                penalData.splice(index, 1);
+                localStorage.setItem('penalData', JSON.stringify(penalData));
+                renderTable();
+            }
+        }
+
+        // User Permissions Management
+        function openUserMgmtModal() { document.getElementById('userMgmtModal').classList.remove('hidden'); }
+        function closeUserMgmtModal() { document.getElementById('userMgmtModal').classList.add('hidden'); }
+
+        function updateEditorPassword() {
+            const newPass = document.getElementById('newPassInput').value;
+            if (newPass.length > 2) {
+                editorPassword = newPass;
+                localStorage.setItem('editorPassword', newPass);
+                alert('Editor password updated successfully.');
+                document.getElementById('newPassInput').value = '';
+            } else {
+                alert('Password must be at least 3 characters long.');
+            }
+        }
+
+        function resetDataToDefault() {
+            if (confirm("Reset penal codes back to initial defaults?")) {
+                penalData = initialPenalData;
+                localStorage.removeItem('penalData');
+                renderTable();
+                closeUserMgmtModal();
+            }
+        }
+
+        // Filter / Calculator
         function setFilter(filter) {
             currentFilter = filter;
             document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -307,9 +449,7 @@
             renderTable();
         }
 
-        function filterData() {
-            renderTable();
-        }
+        function filterData() { renderTable(); }
 
         function addCharge(code) {
             const item = penalData.find(i => i.code === code);
@@ -371,14 +511,8 @@
             });
 
             totalFineEl.textContent = `$${total.toLocaleString()}`;
-
-            if(hasNoBail) {
-                bailStatusEl.textContent = 'NO BAIL ALLOWED';
-                bailStatusEl.className = 'font-bold text-red-500';
-            } else {
-                bailStatusEl.textContent = 'ELIGIBLE FOR BAIL';
-                bailStatusEl.className = 'font-bold text-green-500';
-            }
+            bailStatusEl.textContent = hasNoBail ? 'NO BAIL ALLOWED' : 'ELIGIBLE FOR BAIL';
+            bailStatusEl.className = hasNoBail ? 'font-bold text-red-500' : 'font-bold text-green-500';
 
             if(specialNotes.length > 0) {
                 specialNotesEl.classList.remove('hidden');
@@ -388,7 +522,6 @@
             }
         }
 
-        // Initial Initialization
         renderTable();
     </script>
 </body>
