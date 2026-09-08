@@ -63,6 +63,8 @@
 
         .btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
         .btn-primary { background-color: var(--accent-color); color: #000; font-weight: bold; }
+        .btn-danger { color: var(--danger-color); border-color: var(--danger-color); }
+        .btn-sm { padding: 4px 8px; font-size: 0.75rem; }
 
         .admin-panel {
             background-color: var(--card-bg);
@@ -115,7 +117,6 @@
         }
 
         .is-editor .card-actions { display: flex; }
-        .btn-danger { color: var(--danger-color); border-color: var(--danger-color); }
 
         .modal-overlay {
             position: fixed;
@@ -133,6 +134,17 @@
             border-radius: 10px;
             border: 1px solid var(--accent-color);
             width: 320px;
+        }
+
+        .key-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0f172a;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-top: 5px;
+            border: 1px solid var(--border-color);
         }
     </style>
 </head>
@@ -152,7 +164,7 @@
 
     <!-- OWNER CONTROL PANEL -->
     <div id="ownerPanel" class="admin-panel">
-        <h3 style="margin-top:0; color: var(--accent-color);">👑 Owner Settings & Key Manager</h3>
+        <h3 style="margin-top:0; color: var(--accent-color);">👑 Owner Control Panel (Access & Key Management)</h3>
         
         <div style="margin-bottom: 20px;">
             <label style="font-size: 0.85rem; color: var(--text-muted);">Change Owner Password:</label>
@@ -164,15 +176,15 @@
 
         <hr style="border-color: var(--border-color); margin: 15px 0;">
 
-        <label style="font-size: 0.85rem; color: var(--text-muted);">Add Editor Access Keys:</label>
-        <div style="display: flex; gap: 10px; margin-top: 5px;">
-            <input type="text" id="newEditorKey" placeholder="Enter new Editor Passcode" style="max-width: 350px;">
-            <button class="btn btn-primary" id="addKeyBtn" type="button">Grant Permission Key</button>
+        <label style="font-size: 0.85rem; color: var(--text-muted);">Manage Active Editor Keys:</label>
+        <div style="display: flex; gap: 10px; margin-top: 5px; margin-bottom: 15px;">
+            <input type="text" id="newEditorKey" placeholder="Create new Editor Key / Passcode" style="max-width: 350px;">
+            <button class="btn btn-primary" id="addKeyBtn" type="button">Add Editor Key</button>
         </div>
         
-        <div style="margin-top: 15px;">
-            <strong>Active Permission Keys:</strong>
-            <ul id="keyList" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;"></ul>
+        <div>
+            <strong>Current Active Keys:</strong>
+            <div id="keyList" style="max-width: 500px; margin-top: 5px;"></div>
         </div>
     </div>
 
@@ -196,7 +208,7 @@
         <textarea id="addDesc" placeholder="Full Description..." style="margin-top: 10px;" rows="2"></textarea>
         <div style="display: flex; gap: 10px; margin-top: 10px;">
             <button class="btn btn-primary" id="saveEntryBtn" type="button">Add Entry to Database</button>
-            <button class="btn btn-danger" id="resetDataBtn" type="button">Reset to Default Codes</button>
+            <button class="btn btn-danger" id="resetDataBtn" type="button">Restore Full Code List</button>
         </div>
     </div>
 
@@ -230,10 +242,15 @@ document.addEventListener("DOMContentLoaded", function() {
         { id: 4, code: "PC 2.2.2", crime: "Possession of Cannabis in large quantities", fine: "$25,000", stars: "⭐⭐", notes: "Confiscation", desc: "Possession of 5 or more units of cannabis.", category: "Article 2" },
         { id: 5, code: "PC 2.5.1", crime: "Carrying a weapon without a license", fine: "$20,000", stars: "⭐⭐", notes: "Revoke Gun Lic", desc: "Carrying any firearm without a valid weapon license.", category: "Article 2" },
         { id: 6, code: "PC 2.5.2", crime: "Carrying illegal weapons", fine: "$50,000", stars: "⭐⭐⭐⭐", notes: "Confiscation", desc: "Possession of heavy military-grade weapons or explosive devices.", category: "Article 2" },
-        { id: 7, code: "PC 3.1.1", crime: "Assault on a Civil Servant", fine: "$30,000", stars: "⭐⭐⭐", notes: "No Bail", desc: "Physical assault directed toward an active emergency responder or officer.", category: "Article 3" },
-        { id: 8, code: "PC 3.2.1", crime: "Bribery of an official", fine: "$35,000", stars: "⭐⭐⭐", notes: "Confiscation", desc: "Attempting to bribe any public official or officer.", category: "Article 3" },
-        { id: 9, code: "TC 1.1", crime: "Speeding Offense", fine: "$5,000", stars: "", notes: "Traffic Citation", desc: "Exceeding posted speed limits within city boundaries.", category: "Traffic Code" },
-        { id: 10, code: "TC 1.2", crime: "Reckless Driving", fine: "$15,000", stars: "⭐", notes: "Vehicle Impound", desc: "Driving dangerously or endangering pedestrians.", category: "Traffic Code" }
+        { id: 7, code: "PC 2.8.1", crime: "Armed Robbery", fine: "$45,000", stars: "⭐⭐⭐⭐", notes: "No Bail", desc: "Robbery executed using deadly force or brandishing firearms.", category: "Article 2" },
+        { id: 8, code: "PC 2.9.1", crime: "Grand Theft Auto", fine: "$30,000", stars: "⭐⭐⭐", notes: "Vehicle Impound", desc: "Unlawful taking or theft of a motor vehicle.", category: "Article 2" },
+        { id: 9, code: "PC 3.1.1", crime: "Assault on a Civil Servant", fine: "$30,000", stars: "⭐⭐⭐", notes: "No Bail", desc: "Physical assault directed toward an active emergency responder or officer.", category: "Article 3" },
+        { id: 10, code: "PC 3.2.1", crime: "Bribery of an Official", fine: "$35,000", stars: "⭐⭐⭐", notes: "Confiscation", desc: "Attempting to bribe any public official or officer.", category: "Article 3" },
+        { id: 11, code: "PC 3.5.1", crime: "First-Degree Homicide", fine: "$100,000", stars: "⭐⭐⭐⭐⭐", notes: "No Bail / Federal Hold", desc: "Premeditated, unlawful killing of an individual.", category: "Article 3" },
+        { id: 12, code: "PC 3.6.1", crime: "Evasion / Fleeing LEO", fine: "$25,000", stars: "⭐⭐", notes: "License Suspended", desc: "Fleeing from law enforcement during an active traffic stop or pursuit.", category: "Article 3" },
+        { id: 13, code: "TC 1.1", crime: "Speeding Offense", fine: "$5,000", stars: "", notes: "Traffic Citation", desc: "Exceeding posted speed limits within city boundaries.", category: "Traffic Code" },
+        { id: 14, code: "TC 1.2", crime: "Reckless Driving", fine: "$15,000", stars: "⭐", notes: "Vehicle Impound", desc: "Driving dangerously or endangering pedestrians.", category: "Traffic Code" },
+        { id: 15, code: "TC 1.5", crime: "Driving Without a Valid License", fine: "$10,000", stars: "⭐", notes: "Vehicle Impound", desc: "Operating a motor vehicle without a valid driver's license.", category: "Traffic Code" }
     ];
 
     let database = JSON.parse(localStorage.getItem('leo_db')) || fullDefaultData;
@@ -313,7 +330,7 @@ document.addEventListener("DOMContentLoaded", function() {
             ownerPassword = newPass;
             localStorage.setItem('owner_pass', newPass);
             document.getElementById('newOwnerPass').value = '';
-            alert('Owner password updated successfully!');
+            alert('Owner Password updated successfully!');
         }
     };
 
@@ -328,8 +345,16 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     };
 
+    window.revokeKey = function(keyToRemove) {
+        if (confirm(`Revoke permissions for key: "${keyToRemove}"?`)) {
+            activeEditorKeys = activeEditorKeys.filter(k => k !== keyToRemove);
+            localStorage.setItem('editor_keys', JSON.stringify(activeEditorKeys));
+            renderKeysList();
+        }
+    };
+
     document.getElementById('resetDataBtn').onclick = function() {
-        if (confirm("Reset database back to default penal codes? Custom entries will be removed.")) {
+        if (confirm("Restore full default penal code list? Custom entries will be reset.")) {
             database = fullDefaultData;
             saveDB();
         }
@@ -337,7 +362,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function renderKeysList() {
         const list = document.getElementById('keyList');
-        list.innerHTML = activeEditorKeys.map(k => `<li>Key: <code>${k}</code></li>`).join('');
+        if (activeEditorKeys.length === 0) {
+            list.innerHTML = '<div style="font-size:0.85rem; color:var(--text-muted);">No active editor keys.</div>';
+            return;
+        }
+        list.innerHTML = activeEditorKeys.map(k => `
+            <div class="key-item">
+                <code style="color:var(--accent-color);">${k}</code>
+                <button class="btn btn-danger btn-sm" onclick="revokeKey('${k}')">Revoke Access</button>
+            </div>
+        `).join('');
     }
 
     document.getElementById('saveEntryBtn').onclick = function() {
