@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEO Master Guide - Admin & Editor Suite</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-color: #38bdf8;
+            --accent-hover: #0284c7;
+            --border-color: #334155;
+            --danger-color: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        h1 { margin: 0; color: var(--accent-color); font-size: 2rem; }
+        
+        .user-status { display: flex; align-items: center; gap: 12px; }
+
+        .role-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .role-owner { background-color: #f59e0b; color: #000; }
+        .role-editor { background-color: #38bdf8; color: #000; }
+        .role-viewer { background-color: #64748b; color: #fff; }
+
+        .btn {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .btn-primary { background-color: var(--accent-color); color: #000; font-weight: bold; }
+        .btn-primary:hover { background-color: var(--accent-hover); color: #fff; }
+
+        .admin-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .admin-panel.active { display: block; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        input, select, textarea {
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .controls { margin-bottom: 20px; }
+        .search-bar { width: 100%; padding: 14px 20px; border-radius: 10px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: #fff; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 15px; }
+        
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-actions {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .is-editor .card-actions { display: flex; }
+        .btn-danger { color: var(--danger-color); border-color: var(--danger-color); }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid var(--accent-color);
+            width: 320px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>LEO Master Guide Database</h1>
+            <div style="color: var(--text-muted); font-size: 0.85rem;">Role-Based Access Control System</div>
+        </div>
+        <div class="user-status">
+            <span id="roleBadge" class="role-badge role-viewer">Viewer</span>
+            <button id="authBtn" class="btn" type="button">Owner / Editor Login</button>
+        </div>
+    </header>
+
+    <!-- OWNER CONTROL PANEL -->
+    <div id="ownerPanel" class="admin-panel">
+        <h3 style="margin-top:0; color: var(--accent-color);">👑 Owner Control Panel</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Manage editor keys and permissions for your team members.</p>
+        
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="text" id="newEditorKey" placeholder="Enter new Editor Passcode" style="max-width: 350px;">
+            <button class="btn btn-primary" id="addKeyBtn" type="button">Grant Permission Key</button>
+        </div>
+        
+        <div style="margin-top: 15px;">
+            <strong>Active Permission Keys:</strong>
+            <ul id="keyList" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;"></ul>
+        </div>
+    </div>
+
+    <!-- ADD ENTRY PANEL -->
+    <div id="editorPanel" class="admin-panel">
+        <h3 style="margin-top:0; color: var(--accent-color);">✏️ Add New Code Entry</h3>
+        <div class="form-grid">
+            <input type="text" id="addCode" placeholder="Code (e.g., PC 2.1.1 or TC 1.2)">[cite: 1]
+            <input type="text" id="addCrime" placeholder="Offense Title">[cite: 1]
+            <input type="text" id="addFine" placeholder="Fine (e.g., $20,000)">[cite: 1]
+            <input type="text" id="addStars" placeholder="Stars (e.g., ⭐⭐)">[cite: 1]
+            <select id="addCategory">
+                <option value="Article 2">Article 2: Society</option>
+                <option value="Article 3">Article 3: State</option>
+                <option value="Article 4">Article 4: Malfeasance</option>
+                <option value="Article 5">Article 5: Judicial</option>
+                <option value="Traffic Code">Traffic Code</option>
+            </select>
+            <input type="text" id="addNotes" placeholder="Notes (e.g., Revoke License, No Bail)">[cite: 1]
+        </div>
+        <textarea id="addDesc" placeholder="Full Description..." style="margin-top: 10px;" rows="2"></textarea>
+        <button class="btn btn-primary" id="saveEntryBtn" style="margin-top: 10px;" type="button">Add Entry to Database</button>
+    </div>
+
+    <div class="controls">
+        <input type="text" id="searchInput" class="search-bar" placeholder="Search entries...">
+    </div>
+
+    <div class="grid" id="penalCodeGrid"></div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div id="loginModal" class="modal-overlay">
+    <div class="modal">
+        <h3 style="margin-top:0; color: var(--accent-color);">Login Access</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Enter Owner Password (ownerpass) or an Editor Key.</p>
+        <input type="password" id="passInput" placeholder="Password / Key" style="margin-bottom: 15px;">
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button class="btn" id="cancelLoginBtn" type="button">Cancel</button>
+            <button class="btn btn-primary" id="submitLoginBtn" type="button">Submit</button>
+        </div>
+        <div id="loginError" style="color: var(--danger-color); font-size: 0.8rem; margin-top: 10px; display: none;">Invalid Passcode!</div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const defaultData = [
+        { id: 1, code: "PC 2.1.1", crime: "Possession of Cocaine in small quantities", fine: "$20,000", stars: "", notes: "Confiscation", desc: "Possession of up to 4 units of cocaine.", category: "Article 2" },[cite: 1]
+        { id: 2, code: "PC 2.5.1", crime: "Carrying a weapon without a license", fine: "$20,000", stars: "", notes: "Revoke Gun Lic", desc: "Carrying any weapon without a valid weapon license.", category: "Article 2" }[cite: 1]
+    ];
+
+    let database = JSON.parse(localStorage.getItem('leo_db')) || defaultData;
+    let currentUserRole = 'VIEWER'; 
+    let activeEditorKeys = JSON.parse(localStorage.getItem('editor_keys')) || ['editor123'];
+    const OWNER_PASSWORD = 'ownerpass';
+
+    function saveDB() {
+        localStorage.setItem('leo_db', JSON.stringify(database));
+        renderCards();
+    }
+
+    function updateRoleUI() {
+        const badge = document.getElementById('roleBadge');
+        const authBtn = document.getElementById('authBtn');
+        const ownerPanel = document.getElementById('ownerPanel');
+        const editorPanel = document.getElementById('editorPanel');
+        const body = document.body;
+
+        body.classList.remove('is-editor');
+        ownerPanel.classList.remove('active');
+        editorPanel.classList.remove('active');
+
+        if (currentUserRole === 'OWNER') {
+            badge.className = 'role-badge role-owner';
+            badge.innerText = 'Owner';
+            authBtn.innerText = 'Logout';
+            ownerPanel.classList.add('active');
+            editorPanel.classList.add('active');
+            body.classList.add('is-editor');
+            renderKeysList();
+        } else if (currentUserRole === 'EDITOR') {
+            badge.className = 'role-badge role-editor';
+            badge.innerText = 'Editor';
+            authBtn.innerText = 'Logout';
+            editorPanel.classList.add('active');
+            body.classList.add('is-editor');
+        } else {
+            badge.className = 'role-badge role-viewer';
+            badge.innerText = 'Owner / Editor Login';
+        }
+    }
+
+    document.getElementById('authBtn').addEventListener('click', function() {
+        if (currentUserRole !== 'VIEWER') {
+            currentUserRole = 'VIEWER';
+            updateRoleUI();
+        } else {
+            document.getElementById('loginModal').classList.add('active');
+            document.getElementById('passInput').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+    });
+
+    document.getElementById('cancelLoginBtn').addEventListener('click', function() {
+        document.getElementById('loginModal').classList.remove('active');
+    });
+
+    document.getElementById('submitLoginBtn').addEventListener('click', function() {
+        const pass = document.getElementById('passInput').value.trim();
+        if (pass === OWNER_PASSWORD) {
+            currentUserRole = 'OWNER';
+            document.getElementById('loginModal').classList.remove('active');
+            updateRoleUI();
+        } else if (activeEditorKeys.includes(pass)) {
+            currentUserRole = 'EDITOR';
+            document.getElementById('loginModal').classList.remove('active');
+            updateRoleUI();
+        } else {
+            document.getElementById('loginError').style.display = 'block';
+        }
+    });
+
+    document.getElementById('addKeyBtn').addEventListener('click', function() {
+        const key = document.getElementById('newEditorKey').value.trim();
+        if (key && !activeEditorKeys.includes(key)) {
+            activeEditorKeys.push(key);
+            localStorage.setItem('editor_keys', JSON.stringify(activeEditorKeys));
+            document.getElementById('newEditorKey').value = '';
+            renderKeysList();
+        }
+    });
+
+    function renderKeysList() {
+        const list = document.getElementById('keyList');
+        list.innerHTML = activeEditorKeys.map(k => `<li>Key: <code>${k}</code></li>`).join('');
+    }
+
+    document.getElementById('saveEntryBtn').addEventListener('click', function() {
+        const code = document.getElementById('addCode').value;
+        const crime = document.getElementById('addCrime').value;
+        const fine = document.getElementById('addFine').value;
+        const stars = document.getElementById('addStars').value;
+        const category = document.getElementById('addCategory').value;
+        const notes = document.getElementById('addNotes').value;
+        const desc = document.getElementById('addDesc').value;
+
+        if (!code || !crime) {
+            alert("Please enter a Code and Title.");
+            return;
+        }
+
+        database.push({ id: Date.now(), code, crime, fine, stars, category, notes, desc });
+        saveDB();
+        
+        document.getElementById('addCode').value = '';
+        document.getElementById('addCrime').value = '';
+        document.getElementById('addFine').value = '';
+        document.getElementById('addStars').value = '';
+        document.getElementById('addNotes').value = '';
+        document.getElementById('addDesc').value = '';
+    });
+
+    window.deleteEntry = function(id) {
+        if (confirm("Delete this entry?")) {
+            database = database.filter(item => item.id !== id);
+            saveDB();
+        }
+    };
+
+    function renderCards() {
+        const grid = document.getElementById('penalCodeGrid');
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        grid.innerHTML = '';
+
+        const filtered = database.filter(item => 
+            item.code.toLowerCase().includes(query) || 
+            item.crime.toLowerCase().includes(query) || 
+            item.desc.toLowerCase().includes(query)
+        );
+
+        filtered.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong style="color:var(--accent-color);">${item.code}</strong>
+                        <span style="color:#4ade80;">${item.fine}</span>
+                    </div>
+                    <h4 style="margin:8px 0;">${item.crime}</h4>
+                    <p style="font-size:0.85rem; color:var(--text-muted);">${item.desc}</p>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-danger" style="width:100%;" onclick="deleteEntry(${item.id})">Delete Entry</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    document.getElementById('searchInput').addEventListener('input', renderCards);
+    renderCards();
+});
+</script>
+</body>
+</html>
