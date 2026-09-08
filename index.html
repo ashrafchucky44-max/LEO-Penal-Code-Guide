@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEO Master Guide - Live Cloud Edition</title>
+    <title>LEO Master Guide Database</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -63,7 +63,6 @@
 
         .btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
         .btn-primary { background-color: var(--accent-color); color: #000; font-weight: bold; }
-        .btn-primary:hover { background-color: var(--accent-hover); color: #fff; }
 
         .admin-panel {
             background-color: var(--card-bg);
@@ -151,7 +150,6 @@
         </div>
     </header>
 
-    <!-- OWNER CONTROL PANEL -->
     <div id="ownerPanel" class="admin-panel">
         <h3 style="margin-top:0; color: var(--accent-color);">👑 Owner Control Panel</h3>
         <p style="font-size: 0.9rem; color: var(--text-muted);">Manage editor keys and permissions for your team members.</p>
@@ -167,14 +165,13 @@
         </div>
     </div>
 
-    <!-- ADD ENTRY PANEL -->
     <div id="editorPanel" class="admin-panel">
         <h3 style="margin-top:0; color: var(--accent-color);">✏️ Add New Code Entry</h3>
         <div class="form-grid">
-            <input type="text" id="addCode" placeholder="Code (e.g., PC 2.1.1 or TC 1.2)">[cite: 1]
-            <input type="text" id="addCrime" placeholder="Offense Title">[cite: 1]
-            <input type="text" id="addFine" placeholder="Fine (e.g., $20,000)">[cite: 1]
-            <input type="text" id="addStars" placeholder="Stars (e.g., ⭐⭐)">[cite: 1]
+            <input type="text" id="addCode" placeholder="Code (e.g., PC 2.1.1)">
+            <input type="text" id="addCrime" placeholder="Offense Title">
+            <input type="text" id="addFine" placeholder="Fine (e.g., $20,000)">
+            <input type="text" id="addStars" placeholder="Stars (e.g., ⭐⭐)">
             <select id="addCategory">
                 <option value="Article 2">Article 2: Society</option>
                 <option value="Article 3">Article 3: State</option>
@@ -182,7 +179,7 @@
                 <option value="Article 5">Article 5: Judicial</option>
                 <option value="Traffic Code">Traffic Code</option>
             </select>
-            <input type="text" id="addNotes" placeholder="Notes (e.g., Revoke License, No Bail)">[cite: 1]
+            <input type="text" id="addNotes" placeholder="Notes (e.g., Revoke License)">
         </div>
         <textarea id="addDesc" placeholder="Full Description..." style="margin-top: 10px;" rows="2"></textarea>
         <button class="btn btn-primary" id="saveEntryBtn" style="margin-top: 10px;" type="button">Add Entry to Database</button>
@@ -195,7 +192,6 @@
     <div class="grid" id="penalCodeGrid"></div>
 </div>
 
-<!-- LOGIN MODAL -->
 <div id="loginModal" class="modal-overlay">
     <div class="modal">
         <h3 style="margin-top:0; color: var(--accent-color);">Editor Login Access</h3>
@@ -210,10 +206,10 @@
 </div>
 
 <script>
-window.addEventListener("load", function() {
+document.addEventListener("DOMContentLoaded", function() {
     const defaultData = [
-        { id: 1, code: "PC 2.1.1", crime: "Possession of Cocaine in small quantities", fine: "$20,000", stars: "", notes: "Confiscation", desc: "Possession of up to 4 units of cocaine.", category: "Article 2" },[cite: 1]
-        { id: 2, code: "PC 2.5.1", crime: "Carrying a weapon without a license", fine: "$20,000", stars: "", notes: "Revoke Gun Lic", desc: "Carrying any weapon without a valid weapon license.", category: "Article 2" }[cite: 1]
+        { id: 1, code: "PC 2.1.1", crime: "Possession of Cocaine in small quantities", fine: "$20,000", stars: "", notes: "Confiscation", desc: "Possession of up to 4 units of cocaine.", category: "Article 2" },
+        { id: 2, code: "PC 2.5.1", crime: "Carrying a weapon without a license", fine: "$20,000", stars: "", notes: "Revoke Gun Lic", desc: "Carrying any weapon without a valid weapon license.", category: "Article 2" }
     ];
 
     let database = JSON.parse(localStorage.getItem('leo_db')) || defaultData;
