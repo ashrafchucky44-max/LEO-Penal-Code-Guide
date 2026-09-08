@@ -150,11 +150,22 @@
         </div>
     </header>
 
+    <!-- OWNER CONTROL PANEL -->
     <div id="ownerPanel" class="admin-panel">
-        <h3 style="margin-top:0; color: var(--accent-color);">👑 Owner Control Panel</h3>
-        <p style="font-size: 0.9rem; color: var(--text-muted);">Manage editor keys and permissions for your team members.</p>
+        <h3 style="margin-top:0; color: var(--accent-color);">👑 Owner Settings & Key Manager</h3>
         
-        <div style="display: flex; gap: 10px; align-items: center;">
+        <div style="margin-bottom: 20px;">
+            <label style="font-size: 0.85rem; color: var(--text-muted);">Change Owner Password:</label>
+            <div style="display: flex; gap: 10px; margin-top: 5px;">
+                <input type="password" id="newOwnerPass" placeholder="Enter new Owner Password" style="max-width: 350px;">
+                <button class="btn btn-primary" id="updateOwnerPassBtn" type="button">Update Password</button>
+            </div>
+        </div>
+
+        <hr style="border-color: var(--border-color); margin: 15px 0;">
+
+        <label style="font-size: 0.85rem; color: var(--text-muted);">Add Editor Access Keys:</label>
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
             <input type="text" id="newEditorKey" placeholder="Enter new Editor Passcode" style="max-width: 350px;">
             <button class="btn btn-primary" id="addKeyBtn" type="button">Grant Permission Key</button>
         </div>
@@ -165,10 +176,11 @@
         </div>
     </div>
 
+    <!-- ADD ENTRY PANEL -->
     <div id="editorPanel" class="admin-panel">
         <h3 style="margin-top:0; color: var(--accent-color);">✏️ Add New Code Entry</h3>
         <div class="form-grid">
-            <input type="text" id="addCode" placeholder="Code (e.g., PC 2.1.1)">
+            <input type="text" id="addCode" placeholder="Code (e.g., PC 2.1.1 or TC 1.2)">
             <input type="text" id="addCrime" placeholder="Offense Title">
             <input type="text" id="addFine" placeholder="Fine (e.g., $20,000)">
             <input type="text" id="addStars" placeholder="Stars (e.g., ⭐⭐)">
@@ -182,7 +194,10 @@
             <input type="text" id="addNotes" placeholder="Notes (e.g., Revoke License)">
         </div>
         <textarea id="addDesc" placeholder="Full Description..." style="margin-top: 10px;" rows="2"></textarea>
-        <button class="btn btn-primary" id="saveEntryBtn" style="margin-top: 10px;" type="button">Add Entry to Database</button>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button class="btn btn-primary" id="saveEntryBtn" type="button">Add Entry to Database</button>
+            <button class="btn btn-danger" id="resetDataBtn" type="button">Reset to Default Codes</button>
+        </div>
     </div>
 
     <div class="controls">
@@ -192,10 +207,11 @@
     <div class="grid" id="penalCodeGrid"></div>
 </div>
 
+<!-- LOGIN MODAL -->
 <div id="loginModal" class="modal-overlay">
     <div class="modal">
         <h3 style="margin-top:0; color: var(--accent-color);">Editor Login Access</h3>
-        <p style="font-size: 0.8rem; color: var(--text-muted);">Enter Owner Password (<code>ownerpass</code>) or an Editor Key.</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Enter Owner Password or an Editor Key.</p>
         <input type="password" id="passInput" placeholder="Password / Key" style="margin-bottom: 15px;">
         <div style="display: flex; gap: 10px; justify-content: flex-end;">
             <button class="btn" id="cancelLoginBtn" type="button">Cancel</button>
@@ -207,15 +223,23 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    const defaultData = [
-        { id: 1, code: "PC 2.1.1", crime: "Possession of Cocaine in small quantities", fine: "$20,000", stars: "", notes: "Confiscation", desc: "Possession of up to 4 units of cocaine.", category: "Article 2" },
-        { id: 2, code: "PC 2.5.1", crime: "Carrying a weapon without a license", fine: "$20,000", stars: "", notes: "Revoke Gun Lic", desc: "Carrying any weapon without a valid weapon license.", category: "Article 2" }
+    const fullDefaultData = [
+        { id: 1, code: "PC 2.1.1", crime: "Possession of Cocaine in small quantities", fine: "$20,000", stars: "⭐⭐", notes: "Confiscation", desc: "Possession of up to 4 units of cocaine.", category: "Article 2" },
+        { id: 2, code: "PC 2.1.2", crime: "Possession of Cocaine in large quantities", fine: "$40,000", stars: "⭐⭐⭐", notes: "Confiscation", desc: "Possession of 5 or more units of cocaine.", category: "Article 2" },
+        { id: 3, code: "PC 2.2.1", crime: "Possession of Cannabis in small quantities", fine: "$10,000", stars: "⭐", notes: "Confiscation", desc: "Possession of up to 4 units of cannabis.", category: "Article 2" },
+        { id: 4, code: "PC 2.2.2", crime: "Possession of Cannabis in large quantities", fine: "$25,000", stars: "⭐⭐", notes: "Confiscation", desc: "Possession of 5 or more units of cannabis.", category: "Article 2" },
+        { id: 5, code: "PC 2.5.1", crime: "Carrying a weapon without a license", fine: "$20,000", stars: "⭐⭐", notes: "Revoke Gun Lic", desc: "Carrying any firearm without a valid weapon license.", category: "Article 2" },
+        { id: 6, code: "PC 2.5.2", crime: "Carrying illegal weapons", fine: "$50,000", stars: "⭐⭐⭐⭐", notes: "Confiscation", desc: "Possession of heavy military-grade weapons or explosive devices.", category: "Article 2" },
+        { id: 7, code: "PC 3.1.1", crime: "Assault on a Civil Servant", fine: "$30,000", stars: "⭐⭐⭐", notes: "No Bail", desc: "Physical assault directed toward an active emergency responder or officer.", category: "Article 3" },
+        { id: 8, code: "PC 3.2.1", crime: "Bribery of an official", fine: "$35,000", stars: "⭐⭐⭐", notes: "Confiscation", desc: "Attempting to bribe any public official or officer.", category: "Article 3" },
+        { id: 9, code: "TC 1.1", crime: "Speeding Offense", fine: "$5,000", stars: "", notes: "Traffic Citation", desc: "Exceeding posted speed limits within city boundaries.", category: "Traffic Code" },
+        { id: 10, code: "TC 1.2", crime: "Reckless Driving", fine: "$15,000", stars: "⭐", notes: "Vehicle Impound", desc: "Driving dangerously or endangering pedestrians.", category: "Traffic Code" }
     ];
 
-    let database = JSON.parse(localStorage.getItem('leo_db')) || defaultData;
+    let database = JSON.parse(localStorage.getItem('leo_db')) || fullDefaultData;
     let currentUserRole = 'VIEWER'; 
     let activeEditorKeys = JSON.parse(localStorage.getItem('editor_keys')) || ['editor123'];
-    const OWNER_PASSWORD = 'ownerpass';
+    let ownerPassword = localStorage.getItem('owner_pass') || 'ownerpass';
 
     function saveDB() {
         localStorage.setItem('leo_db', JSON.stringify(database));
@@ -270,7 +294,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     document.getElementById('submitLoginBtn').onclick = function() {
         const pass = document.getElementById('passInput').value.trim();
-        if (pass === OWNER_PASSWORD) {
+        if (pass === ownerPassword) {
             currentUserRole = 'OWNER';
             document.getElementById('loginModal').classList.remove('active');
             updateRoleUI();
@@ -283,6 +307,16 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     };
 
+    document.getElementById('updateOwnerPassBtn').onclick = function() {
+        const newPass = document.getElementById('newOwnerPass').value.trim();
+        if (newPass) {
+            ownerPassword = newPass;
+            localStorage.setItem('owner_pass', newPass);
+            document.getElementById('newOwnerPass').value = '';
+            alert('Owner password updated successfully!');
+        }
+    };
+
     document.getElementById('addKeyBtn').onclick = function() {
         const key = document.getElementById('newEditorKey').value.trim();
         if (key && !activeEditorKeys.includes(key)) {
@@ -291,6 +325,13 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('newEditorKey').value = '';
             renderKeysList();
             alert('Editor Key Added!');
+        }
+    };
+
+    document.getElementById('resetDataBtn').onclick = function() {
+        if (confirm("Reset database back to default penal codes? Custom entries will be removed.")) {
+            database = fullDefaultData;
+            saveDB();
         }
     };
 
@@ -347,12 +388,14 @@ document.addEventListener("DOMContentLoaded", function() {
             card.className = 'card';
             card.innerHTML = `
                 <div>
-                    <div style="display:flex; justify-content:space-between;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
                         <strong style="color:var(--accent-color);">${item.code}</strong>
-                        <span style="color:#4ade80;">${item.fine}</span>
+                        <span style="color:#f59e0b; font-size:0.9rem;">${item.stars || ''}</span>
+                        <span style="color:#4ade80; font-weight:bold;">${item.fine}</span>
                     </div>
                     <h4 style="margin:8px 0;">${item.crime}</h4>
                     <p style="font-size:0.85rem; color:var(--text-muted);">${item.desc}</p>
+                    ${item.notes ? `<div style="font-size:0.75rem; color:#f87171; margin-top:5px;">Note: ${item.notes}</div>` : ''}
                 </div>
                 <div class="card-actions">
                     <button class="btn btn-danger" style="width:100%;" onclick="deleteEntry(${item.id})">Delete Entry</button>
