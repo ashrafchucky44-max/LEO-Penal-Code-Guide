@@ -34,608 +34,383 @@
                 </div>
             </div>
             
-            <div class="flex items-center gap-4 w-full md:w-auto justify-end">
-                <!-- Search Bar -->
-                <div class="relative w-full md:w-64">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchInput" oninput="filterData()" placeholder="Search code, crime..." 
-                        class="w-full bg-gray-800 text-xs text-white pl-9 pr-3 py-2 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500">
-                </div>
-
-                <!-- Access Status Controls -->
-                <div class="flex items-center gap-2 bg-gray-800 p-1 rounded-lg border border-gray-700">
-                    <span id="roleBadge" class="text-xs font-bold px-3 py-1.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/40">
-                        PUBLIC VIEWER
-                    </span>
-                    <button id="authBtn" onclick="openLoginModal()" class="text-xs font-semibold px-3 py-1.5 rounded-md bg-gray-700 hover:bg-gray-600 text-white transition border border-gray-600">
-                        Editor Login
-                    </button>
-                </div>
+            <!-- Quick Search Bar -->
+            <div class="relative w-full md:w-96">
+                <input type="text" id="searchInput" placeholder="Search by charge, PC code, or keyword..." 
+                    class="w-full bg-gray-800 border border-leoBorder text-white text-sm rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-blue-500 transition">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-sm"></i>
             </div>
         </div>
     </header>
 
-    <!-- Admin Bar (Visible only to Editors) -->
-    <div id="adminControlsBar" class="hidden bg-blue-950/40 border-b border-blue-800/50 py-2 px-4">
-        <div class="max-w-7xl mx-auto flex justify-between items-center text-xs">
-            <span class="text-blue-300 font-semibold flex items-center gap-2">
-                <i class="fa-solid fa-user-gear"></i> Editor Privileges Active
-            </span>
-            <div class="flex gap-2">
-                <button onclick="openUserMgmtModal()" class="bg-gray-800 hover:bg-gray-700 text-yellow-400 hover:text-yellow-300 px-3 py-1.5 rounded font-bold border border-gray-700 flex items-center gap-1.5">
-                    <i class="fa-solid fa-key"></i> Passwords & Permissions
-                </button>
-                <button onclick="openLawModal()" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded font-bold transition">
-                    <i class="fa-solid fa-plus mr-1"></i> Add New Law
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    <!-- Main Content Grid -->
-    <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow w-full">
-        
-        <!-- Left 2 Columns: Database View -->
-        <section class="lg:col-span-2 space-y-4">
+        <!-- Left 2 Columns: Penal Code Guide & Filter Options -->
+        <section class="lg:col-span-2 flex flex-col gap-4">
             
-            <!-- Filter Controls -->
-            <div class="bg-leoCard p-4 rounded-lg border border-leoBorder flex flex-wrap gap-2 items-center">
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider mr-2">Article Filter:</span>
-                <button onclick="setFilter('ALL')" class="filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-blue-600 text-white">All</button>
-                <button onclick="setFilter('STARRED')" class="filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-gray-800 text-yellow-400 hover:bg-gray-700 flex items-center gap-1">
-                    <i class="fa-solid fa-star text-xs"></i> Starred
-                </button>
-                <button onclick="setFilter('ART2')" class="filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-gray-800 text-gray-300 hover:bg-gray-700">Art 2: Society</button>
-                <button onclick="setFilter('ART3')" class="filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-gray-800 text-gray-300 hover:bg-gray-700">Art 3: State</button>
-                <button onclick="setFilter('ART4')" class="filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-gray-800 text-gray-300 hover:bg-gray-700">Art 4: Malfeasance</button>
-                <button onclick="setFilter('ART5')" class="filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-gray-800 text-gray-300 hover:bg-gray-700">Art 5: Judicial</button>
+            <!-- Filters Header -->
+            <div class="bg-leoCard border border-leoBorder p-4 rounded-xl flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-filter text-blue-400"></i>
+                    <span class="text-sm font-semibold text-gray-300">Filter Category:</span>
+                </div>
+                <div class="flex flex-wrap gap-2 text-xs" id="categoryFilters">
+                    <button class="filter-btn active bg-blue-600 text-white px-3 py-1.5 rounded-md transition" data-art="ALL">All</button>
+                    <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-md transition" data-art="ART2">Art 2: Society</button>
+                    <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-md transition" data-art="ART3">Art 3: State</button>
+                    <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-md transition" data-art="ART4">Art 4: Malfeasance</button>
+                    <button class="filter-btn bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-md transition" data-art="ART5">Art 5: Judicial</button>
+                </div>
             </div>
 
-            <!-- Table -->
-            <div class="bg-leoCard rounded-lg border border-leoBorder overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-900 border-b border-leoBorder text-xs text-gray-400 uppercase">
-                            <tr>
-                                <th class="p-3">Star</th>
-                                <th class="p-3">Action</th>
-                                <th class="p-3">Code</th>
-                                <th class="p-3">Offense / Description</th>
-                                <th class="p-3">Fine</th>
-                                <th class="p-3">Notes</th>
-                                <th class="p-3 admin-col hidden">Editor Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="penalTableBody" class="divide-y divide-gray-800"></tbody>
-                    </table>
-                </div>
+            <!-- Law Cards Container -->
+            <div id="lawList" class="flex flex-col gap-3">
+                <!-- Javascript will inject law cards here dynamically -->
             </div>
         </section>
 
-        <!-- Sidebar Calculator -->
-        <section class="lg:col-span-1">
-            <div class="bg-leoCard p-4 rounded-lg border border-leoBorder sticky top-24 space-y-4">
-                <div class="flex justify-between items-center border-b border-gray-800 pb-3">
-                    <h2 class="text-base font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-calculator text-blue-500"></i> Arrest Sheet Calculator
-                    </h2>
-                    <button onclick="clearBasket()" class="text-xs text-red-400 hover:text-red-300">Clear All</button>
-                </div>
-
-                <div id="basketItems" class="space-y-2 max-h-64 overflow-y-auto pr-1">
-                    <p class="text-xs text-gray-500 text-center py-4">No charges selected. Click "+" on any penal item to add.</p>
-                </div>
-
-                <div class="border-t border-gray-800 pt-3 space-y-2">
-                    <div class="flex justify-between text-sm font-semibold text-gray-300">
-                        <span>Total Fine:</span>
-                        <span id="totalFine" class="text-green-400 text-lg">$0</span>
+        <!-- Right 1 Column: Arrest Calculator & Citation Helper -->
+        <section class="lg:col-span-1 flex flex-col gap-4">
+            
+            <div class="bg-leoCard border border-leoBorder rounded-xl p-5 sticky top-20 flex flex-col gap-4 shadow-xl">
+                <div class="flex items-center justify-between border-b border-leoBorder pb-3">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-calculator text-blue-400 text-lg"></i>
+                        <h2 class="font-bold text-white text-base tracking-wide">ARREST CALCULATOR</h2>
                     </div>
-                    <div class="flex justify-between text-xs text-gray-400">
-                        <span>Bail Status:</span>
-                        <span id="bailStatus" class="font-bold text-green-500">ELIGIBLE FOR BAIL</span>
-                    </div>
-                    <div id="specialNotes" class="hidden text-xs bg-yellow-900/30 border border-yellow-700 text-yellow-300 p-2 rounded"></div>
+                    <button id="clearAllBtn" class="text-xs text-red-400 hover:text-red-300 underline font-medium">Clear All</button>
                 </div>
 
-                <button onclick="window.print()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs py-2.5 rounded-md transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-print"></i> Export / Print Case Details
+                <!-- Selected Charges Summary -->
+                <div>
+                    <h3 class="text-xs uppercase font-semibold text-gray-400 tracking-wider mb-2">Selected Offences (<span id="chargeCount">0</span>)</h3>
+                    <div id="selectedChargesList" class="max-h-48 overflow-y-auto space-y-2 text-xs pr-1">
+                        <p class="text-gray-500 italic text-center py-4">No charges added yet. Click "+ Add" on any crime to calculate total fine & wanted level.</p>
+                    </div>
+                </div>
+
+                <!-- Totals Display -->
+                <div class="bg-gray-900 border border-leoBorder rounded-lg p-4 space-y-3">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">Total Wanted Stars:</span>
+                        <div id="totalStarsDisplay" class="flex text-yellow-400 space-x-1 text-sm">
+                            <span class="text-gray-600">None</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">Total Fine:</span>
+                        <span id="totalFineDisplay" class="font-mono text-emerald-400 font-bold text-base">$0</span>
+                    </div>
+                </div>
+
+                <!-- Action Button: Copy Summary -->
+                <button id="copySummaryBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg text-sm flex items-center justify-center space-x-2 transition shadow-lg">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>Copy Arrest Report Summary</span>
                 </button>
             </div>
+
         </section>
+
     </main>
 
-    <!-- Editor Login Modal -->
-    <div id="loginModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-        <div class="bg-leoCard border border-leoBorder p-6 rounded-lg w-full max-w-sm space-y-4">
-            <div class="flex justify-between items-center">
-                <h3 class="text-md font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-lock text-blue-500"></i> Editor Access Login
-                </h3>
-                <button onclick="closeLoginModal()" class="text-gray-400 hover:text-white">&times;</button>
-            </div>
-            <div id="loginError" class="hidden text-xs text-red-400 bg-red-900/30 p-2 rounded border border-red-800"></div>
-            <div class="space-y-3">
-                <div>
-                    <label class="text-xs text-gray-400">Editor Key / Password</label>
-                    <input type="password" id="editorKeyInput" placeholder="Enter master password or access key" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700 focus:outline-none focus:border-blue-500">
-                    <p class="text-[10px] text-gray-500 mt-1">Default Password: <span class="font-mono text-gray-400">admin123</span></p>
-                </div>
-                <button onclick="attemptLogin()" class="w-full bg-blue-600 hover:bg-blue-500 text-xs font-bold text-white py-2 rounded transition">Login as Editor</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add/Edit Law Modal -->
-    <div id="lawModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-        <div class="bg-leoCard border border-leoBorder p-6 rounded-lg w-full max-w-md space-y-4">
-            <div class="flex justify-between items-center">
-                <h3 id="lawModalTitle" class="text-md font-bold text-white">Add New Penal Code</h3>
-                <button onclick="closeLawModal()" class="text-gray-400 hover:text-white">&times;</button>
-            </div>
-            <input type="hidden" id="editIndex" value="-1">
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="text-xs text-gray-400">Code</label>
-                    <input type="text" id="inputCode" placeholder="PC 2.1.1" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700">
-                </div>
-                <div>
-                    <label class="text-xs text-gray-400">Fine ($)</label>
-                    <input type="number" id="inputFine" placeholder="20000" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700">
-                </div>
-            </div>
-            <div>
-                <label class="text-xs text-gray-400">Crime Title</label>
-                <input type="text" id="inputCrime" placeholder="Possession of Cocaine" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700">
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="text-xs text-gray-400">Article Category</label>
-                    <select id="inputArt" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700">
-                        <option value="ART2">Article 2: Society</option>
-                        <option value="ART3">Article 3: State</option>
-                        <option value="ART4">Article 4: Malfeasance</option>
-                        <option value="ART5">Article 5: Judicial</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-xs text-gray-400">Notes / Bail</label>
-                    <input type="text" id="inputNotes" placeholder="Confiscation / No Bail" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700">
-                </div>
-            </div>
-            <div>
-                <label class="text-xs text-gray-400">Description</label>
-                <textarea id="inputDesc" placeholder="Detailed description of the crime..." class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700 h-20"></textarea>
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeLawModal()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-xs text-white rounded">Cancel</button>
-                <button onclick="saveLaw()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-xs font-bold text-white rounded">Save</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Password & Access Permissions Management Modal -->
-    <div id="userMgmtModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-        <div class="bg-leoCard border border-leoBorder p-6 rounded-lg w-full max-w-lg space-y-5">
-            <div class="flex justify-between items-center border-b border-gray-800 pb-3">
-                <h3 class="text-md font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-user-shield text-yellow-500"></i> Passwords & Permissions Control
-                </h3>
-                <button onclick="closeUserMgmtModal()" class="text-gray-400 hover:text-white">&times;</button>
-            </div>
-            
-            <!-- Section 1: Change Master Password -->
-            <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-800 space-y-2">
-                <h4 class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
-                    <i class="fa-solid fa-key text-blue-400"></i> Change Master Editor Password
-                </h4>
-                <div class="flex gap-2">
-                    <input type="password" id="newPassInput" placeholder="New Master Password" class="w-full bg-gray-800 p-2 text-xs text-white rounded border border-gray-700 focus:outline-none focus:border-blue-500">
-                    <button onclick="updateEditorPassword()" class="bg-blue-600 hover:bg-blue-500 text-xs font-bold px-3 py-2 text-white rounded whitespace-nowrap transition">
-                        Update Password
-                    </button>
-                </div>
-            </div>
-
-            <!-- Section 2: Grant Permissions (Generate Editor Access Keys) -->
-            <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-800 space-y-2">
-                <div class="flex justify-between items-center">
-                    <h4 class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
-                        <i class="fa-solid fa-user-plus text-green-400"></i> Grant Permission (Generate Access Key)
-                    </h4>
-                    <button onclick="generateAccessKey()" class="bg-green-600 hover:bg-green-500 text-xs font-bold px-3 py-1.5 text-white rounded transition flex items-center gap-1">
-                        <i class="fa-solid fa-plus"></i> Create Access Key
-                    </button>
-                </div>
-                <p class="text-[11px] text-gray-400">Issue custom access keys to give individual officers editor permission.</p>
-            </div>
-
-            <!-- Section 3: Active Access Keys List (Revoke Permissions) -->
-            <div class="bg-gray-900/60 p-3 rounded-lg border border-gray-800 space-y-2">
-                <div class="flex justify-between items-center">
-                    <h4 class="text-xs font-bold text-gray-300 flex items-center gap-1.5">
-                        <i class="fa-solid fa-user-slash text-red-400"></i> Active Access Keys & Revoke Access
-                    </h4>
-                    <button onclick="revokeAllKeys()" class="text-[11px] text-red-400 hover:text-red-300 font-semibold">
-                        Revoke All Extra Keys
-                    </button>
-                </div>
-                <div id="accessKeysList" class="max-h-32 overflow-y-auto space-y-1.5 pt-1"></div>
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="flex justify-between items-center border-t border-gray-800 pt-3">
-                <button onclick="resetDataToDefault()" class="text-xs text-red-400 hover:text-red-300 flex items-center gap-1">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Reset System Defaults
-                </button>
-                <button onclick="closeUserMgmtModal()" class="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-xs text-white rounded">Close</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        const initialPenalData = [
-            { code: "PC 2.1.1", crime: "Possession of Cocaine (Small)", fine: 20000, notes: "Confiscation", desc: "Possession of up to 4 units of cocaine.", art: "ART2" },
-            { code: "PC 2.1.2", crime: "Possession of Cocaine (Moderate)", fine: 30000, notes: "Confiscation", desc: "Possession of 5 to 8 units of cocaine.", art: "ART2" },
-            { code: "PC 2.1.3", crime: "Possession of Cocaine w/ Intent to Supply", fine: 15000, notes: "Confiscation", desc: "Possession of cocaine over 8 units.", art: "ART2" },
-            { code: "PC 2.1.4", crime: "Production of Cocaine", fine: 45000, notes: "Confiscation", desc: "Manufacturing cocaine using modulated equipment.", art: "ART2" },
-            { code: "PC 2.2.1", crime: "Possession of Cannabis (Small)", fine: 20000, notes: "Confiscation", desc: "Possession of cannabis up to 10 units.", art: "ART2" },
-            { code: "PC 2.2.2", crime: "Possession of Cannabis (Moderate)", fine: 30000, notes: "Confiscation", desc: "Possession of over 11 units of cannabis.", art: "ART2" },
-            { code: "PC 2.2.3", crime: "Possession of Cannabis w/ Intent to Supply", fine: 15000, notes: "Confiscation", desc: "Attempting to sell or purchase cannabis.", art: "ART2" },
-            { code: "PC 2.2.4", crime: "Cultivation of Cannabis (Small)", fine: 30000, notes: "Confiscation", desc: "Growing up to 5 cannabis plants.", art: "ART2" },
-            { code: "PC 2.2.5", crime: "Cultivation of Cannabis (Large)", fine: 45000, notes: "Confiscation", desc: "Growing more than 5 cannabis plants.", art: "ART2" },
-            { code: "PC 2.2.6", crime: "Production of Cannabis", fine: 45000, notes: "Confiscation", desc: "Manufacturing Cannabis using modulated equipment.", art: "ART2" },
-            { code: "PC 2.3", crime: "Usage of Illicit Substances in Public", fine: 10000, notes: "Confiscation", desc: "Using drugs or alcohol in public.", art: "ART2" },
-            { code: "PC 2.4.1", crime: "Prohibited Items (Small Quantity)", fine: 15000, notes: "Class A Infraction/Confiscation", desc: "Possession of up to 3 illegal items.", art: "ART2" },
-            { code: "PC 2.6.4", crime: "Attempted Murder", fine: 20000, notes: "No Bail", desc: "Attempting to kill a person (revived).", art: "ART2" },
-            { code: "PC 2.10.5", crime: "Grand Theft Auto", fine: 30000, notes: "None", desc: "Taking a vehicle without permission.", art: "ART2" },
-            { code: "PC 3.5", crime: "Failure to Comply", fine: 35000, notes: "None", desc: "Not cooperating with lawful requests of state employee.", art: "ART3" },
-            { code: "PC 3.15.1", crime: "Evading Arrest", fine: 20000, notes: "No Bail", desc: "Fleeing LEO attempting arrest/detention.", art: "ART3" }
+        const penalData = [
+            { "code": "PC 2.1.1", "crime": "Possession of Cocaine in small quantities", "stars": 1, "fine": 20000, "notes": "Confiscation", "desc": "Possession of up to 4 units of cocaine.", "art": "ART2" },
+            { "code": "PC 2.1.2", "crime": "Possession of Cocaine in moderate quantities", "stars": 1, "fine": 30000, "notes": "Confiscation", "desc": "Possession of 5 to 8 units of cocaine.", "art": "ART2" },
+            { "code": "PC 2.1.3", "crime": "Possession of Cocaine with Intent to supply", "stars": 2, "fine": 15000, "notes": "Confiscation", "desc": "Possession of cocaine over 8 units.", "art": "ART2" },
+            { "code": "PC 2.1.4", "crime": "Production of Cocaine", "stars": 4, "fine": 45000, "notes": "Confiscation", "desc": "The process of manufacturing cocaine using modulated equipment", "art": "ART2" },
+            { "code": "PC 2.2.1", "crime": "Possession of cannabis in small quantities", "stars": 1, "fine": 20000, "notes": "Confiscation", "desc": "Possession of cannabis up to 10 units.", "art": "ART2" },
+            { "code": "PC 2.2.2", "crime": "Possession of cannabis in moderate quantities", "stars": 1, "fine": 30000, "notes": "Confiscation", "desc": "Possession of over 11 units of cannabis.", "art": "ART2" },
+            { "code": "PC 2.2.3", "crime": "Possession of Cannabis with Intent to supply", "stars": 2, "fine": 15000, "notes": "Confiscation", "desc": "Attempting to sell or purchase cannabis.", "art": "ART2" },
+            { "code": "PC 2.2.4", "crime": "Cultivation of cannabis in small quantities", "stars": 1, "fine": 30000, "notes": "Confiscation", "desc": "Growing up to 5 cannabis plants.", "art": "ART2" },
+            { "code": "PC 2.2.5", "crime": "Cultivation of cannabis in large quantities", "stars": 3, "fine": 45000, "notes": "Confiscation", "desc": "Growing more than 5 cannabis plants.", "art": "ART2" },
+            { "code": "PC 2.2.6", "crime": "Production of Cannabis", "stars": 3, "fine": 45000, "notes": "Confiscation", "desc": "The process of manufacturing Cannabis using modulated equipment", "art": "ART2" },
+            { "code": "PC 2.3", "crime": "Usage of illicit substances in public", "stars": 1, "fine": 10000, "notes": "Confiscation", "desc": "Using drugs or alchohol in public.", "art": "ART2" },
+            { "code": "PC 2.4.1", "crime": "Possession of prohibited items in small quantities", "stars": 1, "fine": 15000, "notes": "Class A infraction / Confiscation", "desc": "Possession of up to 3 illegal items from the illegal item list", "art": "ART2" },
+            { "code": "PC 2.4.2", "crime": "Possession of prohibited items in large quantities", "stars": 2, "fine": 15000, "notes": "Confiscation", "desc": "Possession of more than 3 items from the illegal item list", "art": "ART2" },
+            { "code": "PC 2.4.3", "crime": "Sale of prohibited item", "stars": 3, "fine": 25000, "notes": "Confiscation", "desc": "Selling or purchasing an item from the illegal item list", "art": "ART2" },
+            { "code": "PC 2.4.4", "crime": "Possession of infected technology with malicious intent", "stars": 4, "fine": 35000, "notes": "Confiscation", "desc": "Possession of a USB with a virus", "art": "ART2" },
+            { "code": "PC 2.5.1", "crime": "Carrying a weapon without a license", "stars": 1, "fine": 20000, "notes": "Class A Infraction / Confiscation / Revoke gun license", "desc": "Carrying any weapon without a valid weapon license", "art": "ART2" },
+            { "code": "PC 2.5.2", "crime": "Overcarrying", "stars": 2, "fine": 20000, "notes": "Confiscation / Revoke gun license", "desc": "Carrying more than the prescribed amount of weapons and ammo allowed in the firearm law", "art": "ART2" },
+            { "code": "PC 2.5.3", "crime": "Open Carrying", "stars": 2, "fine": 10000, "notes": "Confiscation / Revoke gun license", "desc": "Open Carrying a weapon in public", "art": "ART2" },
+            { "code": "PC 2.5.4", "crime": "Possession of any prohibited weapon", "stars": 1, "fine": 20000, "notes": "Class A infraction / Confiscation", "desc": "Possession of a prohibited weapon", "art": "ART2" },
+            { "code": "PC 2.5.5", "crime": "Possession of multiple prohibited weapons", "stars": 3, "fine": 20000, "notes": "Confiscation / Revoke gun license", "desc": "Possession of more than one prohibited weapon", "art": "ART2" },
+            { "code": "PC 2.5.6", "crime": "Brandishing of a weapon", "stars": 3, "fine": 25000, "notes": "Confiscation / Revoke gun license", "desc": "Using a weapon to intimidate or threaten a person", "art": "ART2" },
+            { "code": "PC 2.5.7", "crime": "Possession of state issued articles", "stars": 3, "fine": 20000, "notes": "Confiscation", "desc": "Possession of weapons, armour or balaclavas, etc. belonging to a state organization", "art": "ART2" },
+            { "code": "PC 2.5.8", "crime": "Discharging a weapon in a public place", "stars": 1, "fine": 10000, "notes": "Confiscation / Revoke gun license", "desc": "Shooting a weapon in a public place but not at a person", "art": "ART2" },
+            { "code": "PC 2.5.9", "crime": "Distribution of weapons ammunition or state-issued articles", "stars": 5, "fine": 50000, "notes": "Confiscation / Revoke gun license", "desc": "Selling or buying weapons, ammo or state issued articles", "art": "ART2" },
+            { "code": "PC 2.5.10", "crime": "Production of ammunition", "stars": 4, "fine": 50000, "notes": "Confiscation / Revoke gun license", "desc": "The process of manufacturing ammunition using modulated equipment", "art": "ART2" },
+            { "code": "PC 2.6.1", "crime": "Non-lethal battery", "stars": 1, "fine": 10000, "notes": "None", "desc": "Inflicting bodily harm on a person wihtout using a firearm", "art": "ART2" },
+            { "code": "PC 2.6.2", "crime": "Manslaughter", "stars": 3, "fine": 15000, "notes": "None", "desc": "Unintentionally killing another person(s).", "art": "ART2" },
+            { "code": "PC 2.6.3", "crime": "Assault by Threat", "stars": 2, "fine": 10000, "notes": "None", "desc": "Verbal assault where a likelihood of the threat's execution is present.", "art": "ART2" },
+            { "code": "PC 2.6.4", "crime": "Attempted Murder", "stars": 4, "fine": 20000, "notes": "No Bail", "desc": "Attempting to kill a person. (Knocked unconcious and revived).", "art": "ART2" },
+            { "code": "PC 2.6.5", "crime": "Murder through hostile action", "stars": 5, "fine": 30000, "notes": "No Bail", "desc": "Killing a person. (Finished a person).", "art": "ART2" },
+            { "code": "PC 2.6.6", "crime": "Rape and/or Sexual Assault", "stars": 5, "fine": 50000, "notes": "None", "desc": "Sexual intercourse against a person's will.", "art": "ART2" },
+            { "code": "PC 2.7.1", "crime": "Failure to Act", "stars": 1, "fine": 10000, "notes": "None", "desc": "Leaving a person to bleed out.", "art": "ART2" },
+            { "code": "PC 2.7.2", "crime": "Refusal of Duty to Act", "stars": 3, "fine": 60000, "notes": "Dismissal from their position", "desc": "Refusing to act in the interests of the general public by a state employee.", "art": "ART2" },
+            { "code": "PC 2.7.3", "crime": "Failure to act by a Public servant", "stars": 3, "fine": 0, "notes": "Dismissal from their position", "desc": "A Public servant leaving a person to bleed out.", "art": "ART2" },
+            { "code": "PC 2.7.4", "crime": "Abandonment of a civilian by a public servant", "stars": 4, "fine": 0, "notes": "Dismissal from their position", "desc": "Leaving a person whom you were in charge of on their own where they cannot look after themselves or are vulnerable.", "art": "ART2" },
+            { "code": "PC 2.8.1", "crime": "Abduction", "stars": 4, "fine": 20000, "notes": "No Bail", "desc": "Taaking someone by force or deception.", "art": "ART2" },
+            { "code": "PC 2.8.2", "crime": "Kidnapping", "stars": 4, "fine": 25000, "notes": "No Bail", "desc": "Taking someone and holding them captive.", "art": "ART2" },
+            { "code": "PC 2.8.3", "crime": "Taking a hostage", "stars": 4, "fine": 30000, "notes": "No Bail", "desc": "Taking someone in exchange for something or someone else.", "art": "ART2" },
+            { "code": "PC 2.8.4", "crime": "Human Trafficking", "stars": 4, "fine": 50000, "notes": "No Bail", "desc": "Taking people by force, coercion or fraud to facilitate labor or commercial sex act.", "art": "ART2" },
+            { "code": "PC 2.8.5", "crime": "Violation of privacy", "stars": 2, "fine": 20000, "notes": "None", "desc": "Breaching, infringing or violating the confidentialilty or right to privacy.", "art": "ART2" },
+            { "code": "PC 2.8.6", "crime": "Unlawful Detention", "stars": 3, "fine": 20000, "notes": "None", "desc": "Detaining of a citizen by a public servant where the reason was either unclear or unwarranted.", "art": "ART2" },
+            { "code": "PC 2.9.1", "crime": "Street Harassment", "stars": 2, "fine": 10000, "notes": "None", "desc": "Rude, derogaory, unwelcome comments, whistles or any other unwelcome form of sexual verbal interaction.", "art": "ART2" },
+            { "code": "PC 2.9.2", "crime": "Sexual Harassment", "stars": 5, "fine": 150000, "notes": "None", "desc": "Harassement of the sexual kind.", "art": "ART2" },
+            { "code": "PC 2.9.3", "crime": "Stalking", "stars": 4, "fine": 35000, "notes": "No Bail", "desc": "Following or harassing another person causing htem to fair injury or death.", "art": "ART2" },
+            { "code": "PC 2.9.4", "crime": "Hooliganism", "stars": 3, "fine": 20000, "notes": "None", "desc": "Massive disturbance of the peace.", "art": "ART2" },
+            { "code": "PC 2.9.5", "crime": "Rioting or inciting a riot", "stars": 3, "fine": 35000, "notes": "None", "desc": "Causing or encouraging the distrubance of peace by three or more people and acting with common intent.", "art": "ART2" },
+            { "code": "PC 2.9.6", "crime": "Spreading of disease", "stars": 1, "fine": 10000, "notes": "Class A Infraction", "desc": "Spreading diesease intentionally.", "art": "ART2" },
+            { "code": "PC 2.9.7", "crime": "Indecent Exposure", "stars": 2, "fine": 20000, "notes": "None", "desc": "Showing private areas of the body where it's against decency standards.", "art": "ART2" },
+            { "code": "PC 2.9.8", "crime": "Provoking", "stars": 2, "fine": 10000, "notes": "None", "desc": "Causing someone to act or react in response to annoying or harassment.", "art": "ART2" },
+            { "code": "PC 2.9.9", "crime": "Engaging in prostitution", "stars": 1, "fine": 5000, "notes": "None", "desc": "Buying or selling one's sexual desires.", "art": "ART2" },
+            { "code": "PC 2.9.10", "crime": "Defamation of character", "stars": 3, "fine": 50000, "notes": "Can ONLY be applied by a Judge after court", "desc": "Damaging a person's reputation by slander or libel", "art": "ART2" },
+            { "code": "PC 2.9.11", "crime": "Harassment of a public servant", "stars": 3, "fine": 30000, "notes": "None", "desc": "Harassing a public servant.", "art": "ART2" },
+            { "code": "PC 2.10.1", "crime": "Document forgery", "stars": 3, "fine": 15000, "notes": "Confiscation of Documents", "desc": "Creating a false document to give appearance of truth.", "art": "ART2" },
+            { "code": "PC 2.10.2", "crime": "Looting of an Automated Teller Machine (ATM)", "stars": 1, "fine": 8000, "notes": "Confiscation", "desc": "Robbing an ATM", "art": "ART2" },
+            { "code": "PC 2.10.3", "crime": "Theft of property", "stars": 3, "fine": 20000, "notes": "None", "desc": "Taking someone's stuff without consent", "art": "ART2" },
+            { "code": "PC 2.10.4", "crime": "Fraud", "stars": 3, "fine": 20000, "notes": "None", "desc": "Defrauding someone or something.", "art": "ART2" },
+            { "code": "PC 2.10.5", "crime": "Grand Theft Auto", "stars": 3, "fine": 30000, "notes": "None", "desc": "Taking a car without permission.", "art": "ART2" },
+            { "code": "PC 2.10.6", "crime": "Robbery", "stars": 4, "fine": 35000, "notes": "No Bail", "desc": "Theft but with force or threat.", "art": "ART2" },
+            { "code": "PC 2.10.7", "crime": "False Advertising", "stars": 1, "fine": 10000, "notes": "Class A Infraction", "desc": "Publicly distributing an advert that is untrue.", "art": "ART2" },
+            { "code": "PC 2.11.1", "crime": "Reckless Driving", "stars": 2, "fine": 20000, "notes": "Revoke Driving License", "desc": "Operating a motor vehicle negligently or knowingly disregarding the safety of others, traffic code or both.", "art": "ART2" },
+            { "code": "PC 2.11.2", "crime": "Causing injury by dangerous driving", "stars": 3, "fine": 20000, "notes": "Revoke Driving License", "desc": "Hurting someone using a car.", "art": "ART2" },
+            { "code": "PC 2.11.3", "crime": "Causing death by dangerous driving", "stars": 4, "fine": 30000, "notes": "Revoke Driving License / No Bail", "desc": "Killing someone using a car.", "art": "ART2" },
+            { "code": "PC 2.11.4", "crime": "Failure to yield to an emergency service vehicle", "stars": 1, "fine": 10000, "notes": "Revoke Driving License", "desc": "Not stopping for an emergency vehicle with it's lights on.", "art": "ART2" },
+            { "code": "PC 2.12.1", "crime": "Animal abuse causing minor harm", "stars": 2, "fine": 20000, "notes": "None", "desc": "Hurting an animal deliberately.", "art": "ART2" },
+            { "code": "PC 2.12.2", "crime": "Animal abuse causing major harm", "stars": 3, "fine": 30000, "notes": "None", "desc": "Significantly hurting an animal deliberately.", "art": "ART2" },
+            { "code": "PC 2.12.3", "crime": "Animal abuse resulting in death", "stars": 4, "fine": 30000, "notes": "No Bail", "desc": "Killing an animal.", "art": "ART2" },
+            { "code": "PC 2.13.1", "crime": "Attempted Suicide", "stars": 1, "fine": 20000, "notes": "Take to EMS for mental health check and can swap star for 10K Fine", "desc": "Trying to kill one's self.", "art": "ART2" },
+            { "code": "PC 2.13.2", "crime": "Conspiracy to commit a crime", "stars": 2, "fine": 20000, "notes": "None", "desc": "Plotting or conspiring to commit a crime.", "art": "ART2" },
+            { "code": "PC 2.13.3", "crime": "Vandalism", "stars": 3, "fine": 30000, "notes": "None", "desc": "Destroying or damaging belongings of another person.", "art": "ART2" },
+            { "code": "PC 2.13.4", "crime": "Illegal Fishing", "stars": 1, "fine": 10000, "notes": "Class B Infraction", "desc": "Fishing in mirror park.", "art": "ART2" },
+            { "code": "PC 2.13.5", "crime": "Breach of Contract", "stars": 3, "fine": 0, "notes": "Charge will be dropped if fine is paid instead / Class A Infraction instead", "desc": "Breaking the terms of a signed contractual agreement.", "art": "ART2" },
+            { "code": "PC 2.13.6", "crime": "Entrapment", "stars": 4, "fine": 100000, "notes": "Can ONLY be applied by a Judge after court", "desc": "Tricking someone into committing a crime to secure their prosecution.", "art": "ART2" },
+            { "code": "PC 2.13.7", "crime": "Installation of temporary structure without a permit.", "stars": 1, "fine": 15000, "notes": "Class B Infraction", "desc": "Putting a barricade down without a permit.", "art": "ART2" },
+            { "code": "PC 2.13.8", "crime": "Installation of temporary structure on a roadway or path.", "stars": 1, "fine": 15000, "notes": "None", "desc": "Putting a barricade down on a road or path with no permit.", "art": "ART2" },
+            { "code": "PC 2.13.9", "crime": "Failure to maintain an updated photographed passport", "stars": 1, "fine": 10000, "notes": "Class C Infraction", "desc": "The act of possessing a passport without a valid photograph", "art": "ART2" },
+            { "code": "PC 3.1.1", "crime": "Participation in terrorism", "stars": 5, "fine": 50000, "notes": "None", "desc": "Using violence and intimidation with political aims.", "art": "ART3" },
+            { "code": "PC 3.1.2", "crime": "Organization of terrorism", "stars": 5, "fine": 75000, "notes": "None", "desc": "Organizing and recruiting people for terrorism.", "art": "ART3" },
+            { "code": "PC 3.1.3", "crime": "Leading a terrorist organization", "stars": 5, "fine": 100000, "notes": "None", "desc": "Leading a terrorist organization.", "art": "ART3" },
+            { "code": "PC 3.1.4", "crime": "Commiting a terrorist act", "stars": 5, "fine": 50000, "notes": "None", "desc": "Comotting a terrorist act.", "art": "ART3" },
+            { "code": "PC 3.1.5", "crime": "Creation of a stable armed group", "stars": 4, "fine": 35000, "notes": "No Bail", "desc": "Creating a stable group of people with access to weapons with purpose to commit crimes.", "art": "ART3" },
+            { "code": "PC 3.1.6", "crime": "Banditry", "stars": 4, "fine": 25000, "notes": "No Bail", "desc": "Committing organized crime.", "art": "ART3" },
+            { "code": "PC 3.2", "crime": "Obstruction of Justice", "stars": 3, "fine": 35000, "notes": "None", "desc": "Willfully intefering with the process of justice and law.", "art": "ART3" },
+            { "code": "PC 3.3", "crime": "Attempted Seizure of Power", "stars": 5, "fine": 75000, "notes": "None", "desc": "Attempting to seize power.", "art": "ART3" },
+            { "code": "PC 3.4.1", "crime": "Trespassing on private property", "stars": 2, "fine": 20000, "notes": "None", "desc": "Entering and/or loitering unlawfully upon the land of another person.", "art": "ART3" },
+            { "code": "PC 3.4.2", "crime": "Trespassing in a State Facility", "stars": 3, "fine": 30000, "notes": "None", "desc": "Trespassing but on a state facility behind lockable gates/doors.", "art": "ART3" },
+            { "code": "PC 3.4.3", "crime": "Breaking and Entering", "stars": 4, "fine": 35000, "notes": "None", "desc": "Forcing or otherwise gaining unlwful passage in another's building.", "art": "ART3" },
+            { "code": "PC 3.5", "crime": "Failure to comply", "stars": 4, "fine": 35000, "notes": "None", "desc": "Not cooperating with the lawful requests of any state employee", "art": "ART3" },
+            { "code": "PC 3.6", "crime": "Failure to Identify", "stars": 2, "fine": 10000, "notes": "None", "desc": "Not identifying with a state employee after a lawful request.", "art": "ART3" },
+            { "code": "PC 3.7", "crime": "Illegal Gambling", "stars": 2, "fine": 20000, "notes": "None", "desc": "Gambling by any means outside of the casino.", "art": "ART3" },
+            { "code": "PC 3.8.1", "crime": "Impersonating a public Servant", "stars": 2, "fine": 35000, "notes": "None", "desc": "Pretending to be a public servant.", "art": "ART3" },
+            { "code": "PC 3.8.2", "crime": "Impersonating a law enforcement Officer", "stars": 3, "fine": 35000, "notes": "None", "desc": "Pretending to be a LEO.", "art": "ART3" },
+            { "code": "PC 3.9.1", "crime": "Breach of electoral silence", "stars": 3, "fine": 25000, "notes": "None", "desc": "Campaigning during active voting times by party members.", "art": "ART3" },
+            { "code": "PC 3.9.2", "crime": "Breach of electoral silence at the voting booth", "stars": 4, "fine": 50000, "notes": "None", "desc": "Campaigning near the voting booth.", "art": "ART3" },
+            { "code": "PC 3.9.3", "crime": "Blocking a voting site", "stars": 4, "fine": 35000, "notes": "None", "desc": "Intentionally blocking or limiting access to the voting booths.", "art": "ART3" },
+            { "code": "PC 3.9.4", "crime": "Illegal persuation of votes", "stars": 4, "fine": 35000, "notes": "None", "desc": "Trying to get people to vote for someone in exchange of something.", "art": "ART3" },
+            { "code": "PC 3.10", "crime": "Battery of a public servant", "stars": 3, "fine": 15000, "notes": "None", "desc": "Inflicting bodily injury without firearms on a state employee.", "art": "ART3" },
+            { "code": "PC 3.11", "crime": "Murder or Attempted murder of a public servant", "stars": 5, "fine": 35000, "notes": "None", "desc": "Killing or trying to kill a public servant.", "art": "ART3" },
+            { "code": "PC 3.12", "crime": "False reporting", "stars": 3, "fine": 20000, "notes": "None", "desc": "Alerting the authorities knowing details are incorrect.", "art": "ART3" },
+            { "code": "PC 3.13.1", "crime": "Active Bribery", "stars": 3, "fine": 20000, "notes": "None", "desc": "Offering money or a favour to a person of trust.", "art": "ART3" },
+            { "code": "PC 3.13.2", "crime": "Passive Bribery", "stars": 5, "fine": 50000, "notes": "None", "desc": "Taking money or a favour given or promised in order to influence the judgement or conduct of a person in a position of trust.", "art": "ART3" },
+            { "code": "PC 3.13.3", "crime": "Quid Pro Quo", "stars": 5, "fine": 50000, "notes": "None", "desc": "A favour or advantage given in return for something", "art": "ART3" },
+            { "code": "PC 3.14", "crime": "Failure to pay fines", "stars": 3, "fine": 20000, "notes": "No Bail until sum has been paid", "desc": "Being at max fines and not paying them.", "art": "ART3" },
+            { "code": "PC 3.15.1", "crime": "Evading arrest", "stars": 3, "fine": 20000, "notes": "No Bail", "desc": "A person fleeing LEO trying to arrest, detaion or investigate them.", "art": "ART3" },
+            { "code": "PC 3.15.2", "crime": "Assisting the evasion of arrest", "stars": 3, "fine": 20000, "notes": "No Bail", "desc": "Assisting a person evade an arrest.", "art": "ART3" },
+            { "code": "PC 3.15.3", "crime": "Assisting the evasion of arrest by a public servant", "stars": 5, "fine": 75000, "notes": "No Bail", "desc": "Assisting a person evade an arrest by a public servant.", "art": "ART3" },
+            { "code": "PC 3.16.1", "crime": "Street harassment towards a colleague", "stars": 2, "fine": 20000, "notes": "Dismissal from position", "desc": "Harassment toward a colleague.", "art": "ART3" },
+            { "code": "PC 3.16.2", "crime": "Hostile work environment", "stars": 3, "fine": 50000, "notes": "Dismissal from position", "desc": "Behaviour that makes a work environment difficult or uncomfortable.", "art": "ART3" },
+            { "code": "PC 3.16.3", "crime": "Sexual harassment towards a colleague", "stars": 3, "fine": 50000, "notes": "Dismissal from position", "desc": "Sexually harassing a colleague.", "art": "ART3" },
+            { "code": "PC 3.17", "crime": "Going absent without leave", "stars": 5, "fine": 50000, "notes": "Dismisal from position", "desc": "Being absent from military duties without authority.", "art": "ART3" },
+            { "code": "PC 3.18", "crime": "Provoking a public servant", "stars": 2, "fine": 20000, "notes": "None", "desc": "Provoking but to a public servant.", "art": "ART3" },
+            { "code": "PC 3.19", "crime": "Tax Evasion", "stars": 4, "fine": 0, "notes": "Fine is detailed in the warrant up to a maximum of $100,000", "desc": "Avoiding taxes!", "art": "ART3" },
+            { "code": "PC 3.20", "crime": "Participation in a cyber attack of the state’s resources", "stars": 4, "fine": 25000, "notes": "None", "desc": "Taking part in a hacker attack on the state's network.", "art": "ART3" },
+            { "code": "PC 3.21", "crime": "Unfair Dismissal", "stars": 4, "fine": 0, "notes": "The prison sentence is subject to a court verdict or settlement agreement", "desc": "The act of dismissing an employee from an organization without first following correct protocols or without reason or sufficient evidence.", "art": "ART3" },
+            { "code": "PC 4.1", "crime": "Disobeying an order", "stars": 3, "fine": 20000, "notes": "No Bail", "desc": "Refusing or failing to follow a lawful order given by a superior.", "art": "ART4" },
+            { "code": "PC 4.2", "crime": "Professional Misconduct", "stars": 5, "fine": 75000, "notes": "None", "desc": "Conducting oneself in a manner that is professionally unsuitable, potentially dangerous, incompetent, distruptive, abusive or illegal.", "art": "ART4" },
+            { "code": "PC 4.3", "crime": "Sabotage", "stars": 5, "fine": 75000, "notes": "None", "desc": "Destroying/damaging weapons, ammo, goods, items of state property to hinder or halt operations by the state.", "art": "ART4" },
+            { "code": "PC 4.4", "crime": "Espionage", "stars": 5, "fine": 75000, "notes": "None", "desc": "Spying or watching a person, company, government etc.", "art": "ART4" },
+            { "code": "PC 4.5", "crime": "Conduct Unbecoming", "stars": 5, "fine": 75000, "notes": "None", "desc": "Acting agaisnt the public interests which harms their statnding of the professionalism to the public eye.", "art": "ART4" },
+            { "code": "PC 4.6", "crime": "Corruption", "stars": 5, "fine": 75000, "notes": "None", "desc": "Dishonest or fraudulent behaviour by a state employee.", "art": "ART4" },
+            { "code": "PC 5.1", "crime": "Disobeying a judicial order", "stars": 4, "fine": 20000, "notes": "No Bail", "desc": "Refusing or failing to follow a lawful order given by the Governor, AG or Judge.", "art": "ART5" },
+            { "code": "PC 5.2", "crime": "Disruption of a trial", "stars": 4, "fine": 20000, "notes": "No Bail", "desc": "Distrupting court or legal processes in court.", "art": "ART5" },
+            { "code": "PC 5.3", "crime": "Dishonoring a judiciary member", "stars": 4, "fine": 20000, "notes": "No Bail", "desc": "Dishonoring the position of a judicial officer during the performance and/or in relation to previous performance.", "art": "ART5" },
+            { "code": "PC 5.4", "crime": "Contempt of court", "stars": 4, "fine": 20000, "notes": "No Bail", "desc": "Being disobedient in court.", "art": "ART5" },
+            { "code": "PC 5.5", "crime": "Ill-use of a judiciary permit", "stars": 4, "fine": 20000, "notes": "No Bail", "desc": "Misuse of a judicial permit.", "art": "ART5" },
+            { "code": "PC 5.6", "crime": "Forged Evidence", "stars": 4, "fine": 20000, "notes": "No Bail", "desc": "Tampering or forging evidence.", "art": "ART5" },
+            { "code": "PC 5.7", "crime": "Perjury", "stars": 4, "fine": 20000, "notes": "No Bail", "desc": "Swearing a false oath or falsifying an affirmation to tell the truth, whether spoken or in writing concerining official proceedings.", "art": "ART5" }
         ];
 
-        let penalData = JSON.parse(localStorage.getItem('penalData')) || initialPenalData;
-        let starredCodes = JSON.parse(localStorage.getItem('starredCodes')) || [];
-        let editorPassword = localStorage.getItem('editorPassword') || 'admin123';
-        let customAccessKeys = JSON.parse(localStorage.getItem('customAccessKeys')) || [];
-        
-        let isEditorMode = false;
-        let currentFilter = 'ALL';
         let selectedCharges = [];
+        let currentFilter = "ALL";
+        let searchQuery = "";
 
-        function renderTable() {
-            const tbody = document.getElementById('penalTableBody');
-            const searchVal = document.getElementById('searchInput').value.toLowerCase();
-            tbody.innerHTML = '';
+        const lawListEl = document.getElementById('lawList');
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const selectedChargesList = document.getElementById('selectedChargesList');
+        const totalFineDisplay = document.getElementById('totalFineDisplay');
+        const totalStarsDisplay = document.getElementById('totalStarsDisplay');
+        const chargeCount = document.getElementById('chargeCount');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const copySummaryBtn = document.getElementById('copySummaryBtn');
 
+        function renderStars(count) {
+            let starsHtml = '';
+            for (let i = 0; i < count; i++) {
+                starsHtml += '<i class="fa-solid fa-star text-yellow-400"></i>';
+            }
+            return starsHtml || '<span class="text-gray-500 text-xs">No Stars</span>';
+        }
+
+        function renderLaws() {
+            lawListEl.innerHTML = '';
+            
             const filtered = penalData.filter(item => {
-                let matchesFilter = false;
-                if (currentFilter === 'ALL') matchesFilter = true;
-                else if (currentFilter === 'STARRED') matchesFilter = starredCodes.includes(item.code);
-                else matchesFilter = (item.art === currentFilter);
-
-                const matchesSearch = item.code.toLowerCase().includes(searchVal) || 
-                                      item.crime.toLowerCase().includes(searchVal) ||
-                                      item.desc.toLowerCase().includes(searchVal) ||
-                                      item.notes.toLowerCase().includes(searchVal);
-                return matchesFilter && matchesSearch;
+                const matchesCategory = (currentFilter === "ALL") || (item.art === currentFilter);
+                const matchesSearch = item.code.toLowerCase().includes(searchQuery) ||
+                                      item.crime.toLowerCase().includes(searchQuery) ||
+                                      item.desc.toLowerCase().includes(searchQuery);
+                return matchesCategory && matchesSearch;
             });
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-xs text-gray-500">No laws found for this category or search query.</td></tr>`;
+                lawListEl.innerHTML = `<p class="text-gray-400 text-center py-8 bg-leoCard rounded-xl border border-leoBorder">No penal codes found matching your criteria.</p>`;
                 return;
             }
 
-            filtered.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-800/50 transition';
+            filtered.forEach(item => {
+                const isSelected = selectedCharges.some(c => c.code === item.code);
                 
-                const isNoBail = item.notes.toLowerCase().includes('no bail');
-                const isStarred = starredCodes.includes(item.code);
-
-                tr.innerHTML = `
-                    <td class="p-3 text-center">
-                        <button onclick="toggleStar('${item.code}')" class="text-sm transition hover:scale-125 ${isStarred ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'}">
-                            <i class="${isStarred ? 'fa-solid' : 'fa-regular'} fa-star"></i>
-                        </button>
-                    </td>
-                    <td class="p-3">
-                        <button onclick='addCharge("${item.code}")' class="bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white px-2 py-1 rounded transition text-xs font-bold">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    </td>
-                    <td class="p-3 font-mono font-bold text-blue-400 whitespace-nowrap">${item.code}</td>
-                    <td class="p-3">
-                        <div class="font-semibold text-gray-100">${item.crime}</div>
-                        <div class="text-xs text-gray-400">${item.desc}</div>
-                    </td>
-                    <td class="p-3 font-semibold text-green-400 whitespace-nowrap">$${Number(item.fine).toLocaleString()}</td>
-                    <td class="p-3 text-xs whitespace-nowrap">
-                        <span class="px-2 py-0.5 rounded ${isNoBail ? 'bg-red-900/40 text-red-400 border border-red-700' : 'bg-gray-800 text-gray-300'}">
-                            ${item.notes}
-                        </span>
-                    </td>
-                    <td class="p-3 text-xs whitespace-nowrap admin-col ${isEditorMode ? '' : 'hidden'}">
-                        <div class="flex gap-2">
-                            <button onclick="openLawModal(${index})" class="text-blue-400 hover:text-blue-300">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button onclick="deleteLaw(${index})" class="text-red-400 hover:text-red-300">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                const card = document.createElement('div');
+                card.className = `bg-leoCard border ${isSelected ? 'border-blue-500 bg-blue-950/20' : 'border-leoBorder'} p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-gray-600 transition`;
+                
+                card.innerHTML = `
+                    <div class="flex-1 space-y-1">
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-blue-900/60 text-blue-300 font-mono text-xs font-bold px-2 py-0.5 rounded border border-blue-700/50">${item.code}</span>
+                            <h3 class="text-sm font-bold text-white">${item.crime}</h3>
                         </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // Toggle Star / Favorites
-        function toggleStar(code) {
-            if (starredCodes.includes(code)) {
-                starredCodes = starredCodes.filter(c => c !== code);
-            } else {
-                starredCodes.push(code);
-            }
-            localStorage.setItem('starredCodes', JSON.stringify(starredCodes));
-            renderTable();
-        }
-
-        // Auth handling
-        function openLoginModal() {
-            if (isEditorMode) {
-                isEditorMode = false;
-                document.getElementById('roleBadge').textContent = 'PUBLIC VIEWER';
-                document.getElementById('roleBadge').className = 'text-xs font-bold px-3 py-1.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/40';
-                document.getElementById('authBtn').textContent = 'Editor Login';
-                document.getElementById('adminControlsBar').classList.add('hidden');
-                document.querySelectorAll('.admin-col').forEach(el => el.classList.add('hidden'));
-                renderTable();
-            } else {
-                document.getElementById('loginModal').classList.remove('hidden');
-            }
-        }
-
-        function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
-
-        function attemptLogin() {
-            const input = document.getElementById('editorKeyInput').value.trim();
-            const isValidMaster = (input === editorPassword);
-            const isValidKey = customAccessKeys.some(k => k.key === input);
-
-            if (isValidMaster || isValidKey) {
-                isEditorMode = true;
-                document.getElementById('roleBadge').textContent = isValidMaster ? 'MASTER EDITOR' : 'EDITOR MODE';
-                document.getElementById('roleBadge').className = 'text-xs font-bold px-3 py-1.5 rounded-md bg-green-500/20 text-green-300 border border-green-500/40';
-                document.getElementById('authBtn').textContent = 'Logout';
-                document.getElementById('adminControlsBar').classList.remove('hidden');
-                document.querySelectorAll('.admin-col').forEach(el => el.classList.remove('hidden'));
-                closeLoginModal();
-                document.getElementById('editorKeyInput').value = '';
-                document.getElementById('loginError').classList.add('hidden');
-                renderTable();
-            } else {
-                document.getElementById('loginError').textContent = 'Invalid Password or Access Key';
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        }
-
-        // Law CRUD
-        function openLawModal(index = -1) {
-            document.getElementById('editIndex').value = index;
-            if (index >= 0) {
-                const law = penalData[index];
-                document.getElementById('lawModalTitle').textContent = 'Edit Penal Code';
-                document.getElementById('inputCode').value = law.code;
-                document.getElementById('inputCrime').value = law.crime;
-                document.getElementById('inputFine').value = law.fine;
-                document.getElementById('inputArt').value = law.art;
-                document.getElementById('inputNotes').value = law.notes;
-                document.getElementById('inputDesc').value = law.desc;
-            } else {
-                document.getElementById('lawModalTitle').textContent = 'Add New Penal Code';
-                document.getElementById('inputCode').value = '';
-                document.getElementById('inputCrime').value = '';
-                document.getElementById('inputFine').value = '';
-                document.getElementById('inputArt').value = 'ART2';
-                document.getElementById('inputNotes').value = '';
-                document.getElementById('inputDesc').value = '';
-            }
-            document.getElementById('lawModal').classList.remove('hidden');
-        }
-
-        function closeLawModal() { document.getElementById('lawModal').classList.add('hidden'); }
-
-        function saveLaw() {
-            const index = parseInt(document.getElementById('editIndex').value);
-            const newLaw = {
-                code: document.getElementById('inputCode').value,
-                crime: document.getElementById('inputCrime').value,
-                fine: parseInt(document.getElementById('inputFine').value) || 0,
-                art: document.getElementById('inputArt').value,
-                notes: document.getElementById('inputNotes').value || 'None',
-                desc: document.getElementById('inputDesc').value
-            };
-
-            if (index >= 0) penalData[index] = newLaw;
-            else penalData.push(newLaw);
-
-            localStorage.setItem('penalData', JSON.stringify(penalData));
-            closeLawModal();
-            renderTable();
-        }
-
-        function deleteLaw(index) {
-            if (confirm("Are you sure you want to delete this penal code?")) {
-                penalData.splice(index, 1);
-                localStorage.setItem('penalData', JSON.stringify(penalData));
-                renderTable();
-            }
-        }
-
-        // Permissions & Passwords Management
-        function openUserMgmtModal() { 
-            renderAccessKeysList();
-            document.getElementById('userMgmtModal').classList.remove('hidden'); 
-        }
-        
-        function closeUserMgmtModal() { 
-            document.getElementById('userMgmtModal').classList.add('hidden'); 
-        }
-
-        function updateEditorPassword() {
-            const newPass = document.getElementById('newPassInput').value.trim();
-            if (newPass.length >= 3) {
-                editorPassword = newPass;
-                localStorage.setItem('editorPassword', newPass);
-                alert('Master Editor password updated successfully!');
-                document.getElementById('newPassInput').value = '';
-            } else {
-                alert('Password must be at least 3 characters long.');
-            }
-        }
-
-        function generateAccessKey() {
-            const note = prompt("Enter Officer Name or Reason for Access Key:", "Officer Key");
-            if (note) {
-                const randomCode = 'KEY-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-                customAccessKeys.push({ key: randomCode, label: note, createdAt: new Date().toLocaleDateString() });
-                localStorage.setItem('customAccessKeys', JSON.stringify(customAccessKeys));
-                renderAccessKeysList();
-            }
-        }
-
-        function revokeKey(index) {
-            if (confirm("Revoke editor access for this key?")) {
-                customAccessKeys.splice(index, 1);
-                localStorage.setItem('customAccessKeys', JSON.stringify(customAccessKeys));
-                renderAccessKeysList();
-            }
-        }
-
-        function revokeAllKeys() {
-            if (confirm("Are you sure you want to revoke ALL extra access keys?")) {
-                customAccessKeys = [];
-                localStorage.setItem('customAccessKeys', JSON.stringify(customAccessKeys));
-                renderAccessKeysList();
-            }
-        }
-
-        function renderAccessKeysList() {
-            const container = document.getElementById('accessKeysList');
-            if (customAccessKeys.length === 0) {
-                container.innerHTML = `<p class="text-[11px] text-gray-500 text-center py-2">No active custom access keys generated.</p>`;
-                return;
-            }
-
-            container.innerHTML = customAccessKeys.map((k, i) => `
-                <div class="flex justify-between items-center bg-gray-800/80 p-2 rounded border border-gray-700 text-xs">
-                    <div>
-                        <span class="font-mono font-bold text-yellow-400 mr-2">${k.key}</span>
-                        <span class="text-gray-300 text-[11px]">(${k.label})</span>
+                        <p class="text-xs text-gray-400">${item.desc}</p>
+                        ${item.notes !== 'None' ? `<p class="text-xs text-amber-400 font-medium"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Note: ${item.notes}</p>` : ''}
                     </div>
-                    <button onclick="revokeKey(${i})" class="text-xs text-red-400 hover:text-red-300 font-bold px-2 py-0.5 rounded bg-red-950/40 border border-red-800/60">
-                        Revoke Access
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function resetDataToDefault() {
-            if (confirm("Reset penal codes and passwords back to initial system defaults?")) {
-                penalData = initialPenalData;
-                starredCodes = [];
-                customAccessKeys = [];
-                editorPassword = 'admin123';
-                localStorage.clear();
-                renderTable();
-                closeUserMgmtModal();
-            }
-        }
-
-        // Filter / Calculator
-        function setFilter(filter) {
-            currentFilter = filter;
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.className = 'filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-gray-800 text-gray-300 hover:bg-gray-700';
+                    <div class="flex items-center justify-between md:justify-end w-full md:w-auto gap-4 border-t md:border-t-0 border-leoBorder pt-2 md:pt-0">
+                        <div class="text-left md:text-right">
+                            <div class="flex items-center space-x-1 text-xs mb-1">
+                                ${renderStars(item.stars)}
+                            </div>
+                            <span class="font-mono text-emerald-400 font-semibold text-sm">$${item.fine.toLocaleString()}</span>
+                        </div>
+                        <button onclick="toggleCharge('${item.code}')" class="${isSelected ? 'bg-red-600 hover:bg-red-500' : 'bg-blue-600 hover:bg-blue-500'} text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center space-x-1">
+                            <i class="fa-solid ${isSelected ? 'fa-minus' : 'fa-plus'}"></i>
+                            <span>${isSelected ? 'Remove' : 'Add'}</span>
+                        </button>
+                    </div>
+                `;
+                lawListEl.appendChild(card);
             });
-            event.target.className = 'filter-btn text-xs px-3 py-1.5 rounded-md font-medium bg-blue-600 text-white';
-            renderTable();
         }
 
-        function filterData() { renderTable(); }
-
-        function addCharge(code) {
-            const item = penalData.find(i => i.code === code);
-            if(item) {
-                selectedCharges.push(item);
-                updateBasket();
+        window.toggleCharge = function(code) {
+            const index = selectedCharges.findIndex(c => c.code === code);
+            if (index > -1) {
+                selectedCharges.splice(index, 1);
+            } else {
+                const law = penalData.find(c => c.code === code);
+                if (law) selectedCharges.push(law);
             }
-        }
+            updateCalculator();
+            renderLaws();
+        };
 
-        function removeCharge(index) {
-            selectedCharges.splice(index, 1);
-            updateBasket();
-        }
-
-        function clearBasket() {
-            selectedCharges = [];
-            updateBasket();
-        }
-
-        function updateBasket() {
-            const container = document.getElementById('basketItems');
-            const totalFineEl = document.getElementById('totalFine');
-            const bailStatusEl = document.getElementById('bailStatus');
-            const specialNotesEl = document.getElementById('specialNotes');
-
+        function updateCalculator() {
+            chargeCount.textContent = selectedCharges.length;
+            
             if (selectedCharges.length === 0) {
-                container.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">No charges selected. Click "+" on any penal item to add.</p>`;
-                totalFineEl.textContent = '$0';
-                bailStatusEl.textContent = 'ELIGIBLE FOR BAIL';
-                bailStatusEl.className = 'font-bold text-green-500';
-                specialNotesEl.classList.add('hidden');
+                selectedChargesList.innerHTML = `<p class="text-gray-500 italic text-center py-4">No charges added yet. Click "+ Add" on any crime to calculate total fine & wanted level.</p>`;
+                totalFineDisplay.textContent = '$0';
+                totalStarsDisplay.innerHTML = `<span class="text-gray-600">None</span>`;
                 return;
             }
 
-            container.innerHTML = '';
-            let total = 0;
-            let hasNoBail = false;
-            let specialNotes = [];
+            let totalFine = 0;
+            let maxStars = 0;
+            selectedChargesList.innerHTML = '';
 
-            selectedCharges.forEach((item, index) => {
-                total += item.fine;
-                if(item.notes.toLowerCase().includes('no bail')) hasNoBail = true;
-                if(item.notes !== 'None' && !item.notes.toLowerCase().includes('no bail')) {
-                    specialNotes.push(`${item.code}: ${item.notes}`);
-                }
+            selectedCharges.forEach(item => {
+                totalFine += item.fine;
+                if (item.stars > maxStars) maxStars = item.stars;
 
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center bg-gray-900 p-2 rounded border border-gray-800 text-xs';
-                div.innerHTML = `
-                    <div>
-                        <div class="font-bold text-blue-400">${item.code} - ${item.crime}</div>
-                        <div class="text-green-400">$${item.fine.toLocaleString()}</div>
+                const itemEl = document.createElement('div');
+                itemEl.className = 'flex justify-between items-center bg-gray-900 border border-leoBorder p-2 rounded';
+                itemEl.innerHTML = `
+                    <div class="truncate mr-2">
+                        <span class="font-mono text-blue-400 font-bold">${item.code}</span>
+                        <span class="text-gray-300 ml-1">${item.crime}</span>
                     </div>
-                    <button onclick="removeCharge(${index})" class="text-red-400 hover:text-red-300 px-1">
-                        <i class="fa-solid fa-trash"></i>
+                    <button onclick="toggleCharge('${item.code}')" class="text-red-400 hover:text-red-300 px-1">
+                        <i class="fa-solid fa-xmark"></i>
                     </button>
                 `;
-                container.appendChild(div);
+                selectedChargesList.appendChild(itemEl);
             });
 
-            totalFineEl.textContent = `$${total.toLocaleString()}`;
-            bailStatusEl.textContent = hasNoBail ? 'NO BAIL ALLOWED' : 'ELIGIBLE FOR BAIL';
-            bailStatusEl.className = hasNoBail ? 'font-bold text-red-500' : 'font-bold text-green-500';
-
-            if(specialNotes.length > 0) {
-                specialNotesEl.classList.remove('hidden');
-                specialNotesEl.innerHTML = `<strong>Action Required:</strong><br>` + [...new Set(specialNotes)].join('<br>');
-            } else {
-                specialNotesEl.classList.add('hidden');
-            }
+            totalFineDisplay.textContent = `$${totalFine.toLocaleString()}`;
+            totalStarsDisplay.innerHTML = renderStars(maxStars);
         }
 
-        renderTable();
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase();
+            renderLaws();
+        });
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active', 'bg-blue-600', 'text-white'));
+                filterBtns.forEach(b => b.classList.add('bg-gray-800', 'text-gray-300'));
+                
+                btn.classList.add('active', 'bg-blue-600', 'text-white');
+                btn.classList.remove('bg-gray-800', 'text-gray-300');
+                
+                currentFilter = btn.getAttribute('data-art');
+                renderLaws();
+            });
+        });
+
+        clearAllBtn.addEventListener('click', () => {
+            selectedCharges = [];
+            updateCalculator();
+            renderLaws();
+        });
+
+        copySummaryBtn.addEventListener('click', () => {
+            if (selectedCharges.length === 0) {
+                alert('Please select at least one charge first.');
+                return;
+            }
+
+            let totalFine = selectedCharges.reduce((sum, item) => sum + item.fine, 0);
+            let maxStars = Math.max(...selectedCharges.map(item => item.stars));
+            
+            let summary = `*** LEO ARREST REPORT SUMMARY ***\n`;
+            summary += `Charges (${selectedCharges.length}):\n`;
+            selectedCharges.forEach(item => {
+                summary += `- ${item.code}: ${item.crime} ($${item.fine.toLocaleString()})\n`;
+            });
+            summary += `\nTotal Fine: $${totalFine.toLocaleString()}\n`;
+            summary += `Wanted Level: ${maxStars} Star(s)\n`;
+
+            navigator.clipboard.writeText(summary).then(() => {
+                alert('Arrest report summary copied to clipboard!');
+            });
+        });
+
+        // Initial Render
+        renderLaws();
     </script>
 </body>
 </html>
