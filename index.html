@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEO Penal Code Guide & Calculator</title>
+    <title>LEO Penal Code Guide & Admin System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -24,7 +24,7 @@
 <body class="bg-leoDark text-gray-200 min-h-screen font-sans flex flex-col">
 
     <!-- Header -->
-    <header class="bg-gray-900 border-b border-leoBorder sticky top-0 z-50">
+    <header class="bg-gray-900 border-b border-leoBorder sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
                 <i class="fa-solid font-bold fa-shield-halved text-blue-500 text-3xl"></i>
@@ -33,15 +33,40 @@
                     <p class="text-xs text-gray-400">Department of Justice Official Reference</p>
                 </div>
             </div>
-            
-            <!-- Quick Search Bar -->
-            <div class="relative w-full md:w-96">
-                <input type="text" id="searchInput" placeholder="Search by charge, PC code, or keyword..." 
-                    class="w-full bg-gray-800 border border-leoBorder text-white text-sm rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-blue-500 transition">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-sm"></i>
+
+            <!-- Header Right: Auth & Search -->
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <div class="relative w-full md:w-80">
+                    <input type="text" id="searchInput" placeholder="Search code, crime..." 
+                        class="w-full bg-gray-800 border border-leoBorder text-white text-sm rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-blue-500 transition">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-sm"></i>
+                </div>
+
+                <!-- Auth / Admin Control Bar -->
+                <div id="authContainer" class="flex items-center gap-2">
+                    <!-- Dynamic Buttons Added via JS -->
+                </div>
             </div>
         </div>
     </header>
+
+    <!-- Sub-bar for Active Status -->
+    <div id="statusHeader" class="bg-blue-950/40 border-b border-leoBorder px-4 py-1.5 text-xs text-blue-400 flex justify-between items-center max-w-7xl mx-auto w-full hidden">
+        <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-user-shield"></i>
+            <span id="roleLabel" class="font-semibold">Editor Privileges Active</span>
+        </div>
+        <div class="flex gap-2">
+            <button id="permissionsBtn" onclick="openPermissionsModal()" class="bg-yellow-600/80 hover:bg-yellow-600 text-white font-medium px-2.5 py-0.5 rounded text-xs transition flex items-center space-x-1">
+                <i class="fa-solid fa-key text-xs"></i>
+                <span>Passwords & Permissions</span>
+            </button>
+            <button id="addLawBtn" onclick="openLawModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-2.5 py-0.5 rounded text-xs transition flex items-center space-x-1">
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>Add New Law</span>
+            </button>
+        </div>
+    </div>
 
     <!-- Main Content Container -->
     <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -66,57 +91,186 @@
 
             <!-- Law Cards Container -->
             <div id="lawList" class="flex flex-col gap-3">
-                <!-- Javascript will inject law cards here dynamically -->
+                <!-- JavaScript renders law cards here dynamically -->
             </div>
         </section>
 
-        <!-- Right 1 Column: Arrest Calculator & Citation Helper -->
+        <!-- Right 1 Column: Arrest Calculator -->
         <section class="lg:col-span-1 flex flex-col gap-4">
-            
             <div class="bg-leoCard border border-leoBorder rounded-xl p-5 sticky top-20 flex flex-col gap-4 shadow-xl">
                 <div class="flex items-center justify-between border-b border-leoBorder pb-3">
                     <div class="flex items-center space-x-2">
                         <i class="fa-solid fa-calculator text-blue-400 text-lg"></i>
-                        <h2 class="font-bold text-white text-base tracking-wide">ARREST CALCULATOR</h2>
+                        <h2 class="font-bold text-white text-base tracking-wide">Arrest Sheet Calculator</h2>
                     </div>
                     <button id="clearAllBtn" class="text-xs text-red-400 hover:text-red-300 underline font-medium">Clear All</button>
                 </div>
 
                 <!-- Selected Charges Summary -->
                 <div>
-                    <h3 class="text-xs uppercase font-semibold text-gray-400 tracking-wider mb-2">Selected Offences (<span id="chargeCount">0</span>)</h3>
+                    <h3 class="text-xs uppercase font-semibold text-gray-400 tracking-wider mb-2">Selected Charges (<span id="chargeCount">0</span>)</h3>
                     <div id="selectedChargesList" class="max-h-48 overflow-y-auto space-y-2 text-xs pr-1">
-                        <p class="text-gray-500 italic text-center py-4">No charges added yet. Click "+ Add" on any crime to calculate total fine & wanted level.</p>
+                        <p class="text-gray-500 italic text-center py-4">No charges selected. Click "+" on any penal item to add.</p>
                     </div>
                 </div>
 
                 <!-- Totals Display -->
                 <div class="bg-gray-900 border border-leoBorder rounded-lg p-4 space-y-3">
                     <div class="flex justify-between items-center text-sm">
-                        <span class="text-gray-400">Total Wanted Stars:</span>
-                        <div id="totalStarsDisplay" class="flex text-yellow-400 space-x-1 text-sm">
-                            <span class="text-gray-600">None</span>
+                        <span class="text-gray-400">Total Stars:</span>
+                        <div id="totalStarsDisplay" class="flex text-yellow-400 space-x-1 text-sm font-bold">
+                            0 ★
                         </div>
                     </div>
                     <div class="flex justify-between items-center text-sm">
                         <span class="text-gray-400">Total Fine:</span>
                         <span id="totalFineDisplay" class="font-mono text-emerald-400 font-bold text-base">$0</span>
                     </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-gray-400">Bail Status:</span>
+                        <span id="bailStatusDisplay" class="text-emerald-400 font-semibold">ELIGIBLE FOR BAIL</span>
+                    </div>
                 </div>
 
                 <!-- Action Button: Copy Summary -->
                 <button id="copySummaryBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg text-sm flex items-center justify-center space-x-2 transition shadow-lg">
-                    <i class="fa-regular fa-copy"></i>
-                    <span>Copy Arrest Report Summary</span>
+                    <i class="fa-solid fa-print"></i>
+                    <span>Export / Print Case Details</span>
                 </button>
             </div>
-
         </section>
 
     </main>
 
+    <!-- Modal 1: Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-leoCard border border-leoBorder w-full max-w-md rounded-xl p-6 shadow-2xl relative">
+            <button onclick="closeModal('loginModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <div class="flex items-center space-x-3 mb-4">
+                <i class="fa-solid fa-lock text-blue-500 text-2xl"></i>
+                <h2 class="text-lg font-bold text-white">Login to Editor / Admin</h2>
+            </div>
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Enter Master Password or Access Key</label>
+                    <input type="password" id="loginPassword" class="w-full bg-gray-900 border border-leoBorder rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500" placeholder="Password or Access Key" required>
+                </div>
+                <div id="loginError" class="text-red-400 text-xs hidden">Invalid Password or Key!</div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('loginModal')" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-xs text-gray-300 rounded-lg">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white rounded-lg">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 2: Admin Passwords & Permissions Control -->
+    <div id="permissionsModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-leoCard border border-leoBorder w-full max-w-xl rounded-xl p-6 shadow-2xl relative">
+            <button onclick="closeModal('permissionsModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            
+            <div class="flex items-center space-x-3 mb-6 border-b border-leoBorder pb-3">
+                <i class="fa-solid fa-user-gear text-yellow-500 text-2xl"></i>
+                <h2 class="text-lg font-bold text-white">Passwords & Permissions Control</h2>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Section A: Master Password Change -->
+                <div class="bg-gray-900 border border-leoBorder p-4 rounded-lg space-y-3">
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-key text-blue-400"></i> Change Master Editor Password
+                    </h3>
+                    <div class="flex gap-2">
+                        <input type="password" id="newMasterPassword" placeholder="New Master Password" class="flex-1 bg-gray-800 border border-leoBorder text-xs text-white rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+                        <button onclick="updateMasterPassword()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 py-2 rounded">Update Password</button>
+                    </div>
+                </div>
+
+                <!-- Section B: Generate Access Keys -->
+                <div class="bg-gray-900 border border-leoBorder p-4 rounded-lg space-y-3">
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center justify-between">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-user-plus text-emerald-400"></i> Grant Permission (Generate Access Key)</span>
+                        <button onclick="createAccessKey()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-1 rounded">+ Create Access Key</button>
+                    </h3>
+                    <p class="text-xs text-gray-400">Issue custom access keys to give individual officers editor permission.</p>
+                </div>
+
+                <!-- Section C: Active Access Keys -->
+                <div class="bg-gray-900 border border-leoBorder p-4 rounded-lg space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-shield-virus text-red-400"></i> Active Access Keys & Revoke Access
+                        </h3>
+                        <button onclick="revokeAllKeys()" class="text-xs text-red-400 hover:text-red-300 underline">Revoke All Extra Keys</button>
+                    </div>
+                    <div id="accessKeysList" class="max-h-32 overflow-y-auto space-y-1.5 text-xs text-gray-300 pr-1">
+                        <!-- Keys rendered here dynamically -->
+                    </div>
+                </div>
+
+                <!-- Reset System Defaults -->
+                <div class="border-t border-leoBorder pt-4 flex justify-between items-center">
+                    <button onclick="resetSystemDefaults()" class="text-xs text-red-500 hover:text-red-400 font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Reset System Defaults
+                    </button>
+                    <button onclick="closeModal('permissionsModal')" class="px-4 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs text-white rounded">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Add/Edit Law Modal -->
+    <div id="lawModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-leoCard border border-leoBorder w-full max-w-lg rounded-xl p-6 shadow-2xl relative">
+            <button onclick="closeModal('lawModal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <h2 id="lawModalTitle" class="text-lg font-bold text-white mb-4">Add New Law</h2>
+            <form id="lawForm" onsubmit="saveLaw(event)" class="space-y-3">
+                <input type="hidden" id="lawEditOriginalCode">
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">PC Code</label>
+                    <input type="text" id="lawCode" required placeholder="PC 2.1.1" class="w-full bg-gray-900 border border-leoBorder rounded px-3 py-1.5 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Article Category</label>
+                    <select id="lawArt" class="w-full bg-gray-900 border border-leoBorder rounded px-3 py-1.5 text-xs text-white">
+                        <option value="ART2">Art 2: Society</option>
+                        <option value="ART3">Art 3: State</option>
+                        <option value="ART4">Art 4: Malfeasance</option>
+                        <option value="ART5">Art 5: Judicial</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Offense / Title</label>
+                    <input type="text" id="lawCrime" required placeholder="Crime title" class="w-full bg-gray-900 border border-leoBorder rounded px-3 py-1.5 text-xs text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">Stars (1-5)</label>
+                        <input type="number" id="lawStars" min="1" max="5" value="1" required class="w-full bg-gray-900 border border-leoBorder rounded px-3 py-1.5 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1">Fine ($)</label>
+                        <input type="number" id="lawFine" min="0" value="10000" required class="w-full bg-gray-900 border border-leoBorder rounded px-3 py-1.5 text-xs text-white">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Description</label>
+                    <textarea id="lawDesc" rows="2" class="w-full bg-gray-900 border border-leoBorder rounded px-3 py-1.5 text-xs text-white" placeholder="Detailed explanation"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Notes / Conditions</label>
+                    <input type="text" id="lawNotes" placeholder="Confiscation, No Bail, etc." value="None" class="w-full bg-gray-900 border border-leoBorder rounded px-3 py-1.5 text-xs text-white">
+                </div>
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeModal('lawModal')" class="px-4 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs text-gray-300 rounded">Cancel</button>
+                    <button type="submit" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 text-xs font-semibold text-white rounded">Save Law</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        const penalData = [
+        const initialPenalData = [
             { "code": "PC 2.1.1", "crime": "Possession of Cocaine in small quantities", "stars": 1, "fine": 20000, "notes": "Confiscation", "desc": "Possession of up to 4 units of cocaine.", "art": "ART2" },
             { "code": "PC 2.1.2", "crime": "Possession of Cocaine in moderate quantities", "stars": 1, "fine": 30000, "notes": "Confiscation", "desc": "Possession of 5 to 8 units of cocaine.", "art": "ART2" },
             { "code": "PC 2.1.3", "crime": "Possession of Cocaine with Intent to supply", "stars": 2, "fine": 15000, "notes": "Confiscation", "desc": "Possession of cocaine over 8 units.", "art": "ART2" },
@@ -245,19 +399,178 @@
             { "code": "PC 5.7", "crime": "Perjury", "stars": 4, "fine": 20000, "notes": "No Bail", "desc": "Swearing a false oath or falsifying an affirmation to tell the truth, whether spoken or in writing concerining official proceedings.", "art": "ART5" }
         ];
 
+        // System State
+        let penalData = JSON.parse(localStorage.getItem('penalData')) || initialPenalData;
+        let masterPassword = localStorage.getItem('masterPassword') || 'admin123';
+        let accessKeys = JSON.parse(localStorage.getItem('accessKeys')) || [];
+        
+        // Session State: 'NONE', 'EDITOR', 'MASTER'
+        let currentRole = localStorage.getItem('userRole') || 'NONE'; 
+
         let selectedCharges = [];
         let currentFilter = "ALL";
         let searchQuery = "";
 
+        // Elements
         const lawListEl = document.getElementById('lawList');
         const searchInput = document.getElementById('searchInput');
         const filterBtns = document.querySelectorAll('.filter-btn');
         const selectedChargesList = document.getElementById('selectedChargesList');
         const totalFineDisplay = document.getElementById('totalFineDisplay');
         const totalStarsDisplay = document.getElementById('totalStarsDisplay');
+        const bailStatusDisplay = document.getElementById('bailStatusDisplay');
         const chargeCount = document.getElementById('chargeCount');
         const clearAllBtn = document.getElementById('clearAllBtn');
         const copySummaryBtn = document.getElementById('copySummaryBtn');
+        const authContainer = document.getElementById('authContainer');
+        const statusHeader = document.getElementById('statusHeader');
+        const permissionsBtn = document.getElementById('permissionsBtn');
+
+        function saveData() {
+            localStorage.setItem('penalData', JSON.stringify(penalData));
+            localStorage.setItem('masterPassword', masterPassword);
+            localStorage.setItem('accessKeys', JSON.stringify(accessKeys));
+            localStorage.setItem('userRole', currentRole);
+        }
+
+        function updateAuthUI() {
+            authContainer.innerHTML = '';
+            if (currentRole === 'NONE') {
+                statusHeader.classList.add('hidden');
+                authContainer.innerHTML = `
+                    <button onclick="openModal('loginModal')" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-3 py-1.5 rounded-lg text-xs transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Master Editor Login</span>
+                    </button>
+                `;
+            } else {
+                statusHeader.classList.remove('hidden');
+                document.getElementById('roleLabel').textContent = currentRole === 'MASTER' ? 'Master Editor Privileges Active' : 'Editor Privileges Active';
+                
+                if (currentRole === 'MASTER') {
+                    permissionsBtn.classList.remove('hidden');
+                } else {
+                    permissionsBtn.classList.add('hidden');
+                }
+
+                authContainer.innerHTML = `
+                    <span class="text-xs bg-gray-800 text-emerald-400 font-bold px-2.5 py-1 rounded border border-emerald-500/30">
+                        ${currentRole === 'MASTER' ? 'MASTER EDITOR' : 'EDITOR'}
+                    </span>
+                    <button onclick="logout()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium px-2.5 py-1.5 rounded-lg text-xs transition">
+                        Logout
+                    </button>
+                `;
+            }
+            renderLaws();
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const inputPass = document.getElementById('loginPassword').value.trim();
+            const errorEl = document.getElementById('loginError');
+
+            if (inputPass === masterPassword) {
+                currentRole = 'MASTER';
+                saveData();
+                closeModal('loginModal');
+                document.getElementById('loginPassword').value = '';
+                errorEl.classList.add('hidden');
+                updateAuthUI();
+            } else if (accessKeys.includes(inputPass)) {
+                currentRole = 'EDITOR';
+                saveData();
+                closeModal('loginModal');
+                document.getElementById('loginPassword').value = '';
+                errorEl.classList.add('hidden');
+                updateAuthUI();
+            } else {
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            currentRole = 'NONE';
+            saveData();
+            updateAuthUI();
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function openPermissionsModal() {
+            renderAccessKeys();
+            openModal('permissionsModal');
+        }
+
+        function updateMasterPassword() {
+            const pass = document.getElementById('newMasterPassword').value.trim();
+            if (pass.length < 4) {
+                alert('Password must be at least 4 characters long.');
+                return;
+            }
+            masterPassword = pass;
+            saveData();
+            document.getElementById('newMasterPassword').value = '';
+            alert('Master Editor Password successfully updated!');
+        }
+
+        function createAccessKey() {
+            const randomKey = 'KEY-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+            accessKeys.push(randomKey);
+            saveData();
+            renderAccessKeys();
+        }
+
+        function revokeKey(key) {
+            accessKeys = accessKeys.filter(k => k !== key);
+            saveData();
+            renderAccessKeys();
+        }
+
+        function revokeAllKeys() {
+            if (confirm("Are you sure you want to revoke all extra access keys?")) {
+                accessKeys = [];
+                saveData();
+                renderAccessKeys();
+            }
+        }
+
+        function renderAccessKeys() {
+            const listEl = document.getElementById('accessKeysList');
+            if (accessKeys.length === 0) {
+                listEl.innerHTML = `<p class="text-gray-500 italic text-center py-2">No active custom access keys generated.</p>`;
+                return;
+            }
+            listEl.innerHTML = '';
+            accessKeys.forEach(key => {
+                const item = document.createElement('div');
+                item.className = 'flex justify-between items-center bg-gray-800 px-3 py-1.5 rounded border border-leoBorder';
+                item.innerHTML = `
+                    <span class="font-mono text-emerald-400 font-bold">${key}</span>
+                    <button onclick="revokeKey('${key}')" class="text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash"></i> Revoke</button>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        function resetSystemDefaults() {
+            if (confirm("Are you sure you want to reset all laws and permissions to default settings?")) {
+                penalData = [...initialPenalData];
+                masterPassword = 'admin123';
+                accessKeys = [];
+                currentRole = 'MASTER';
+                saveData();
+                closeModal('permissionsModal');
+                updateAuthUI();
+                alert('System restored to factory default settings!');
+            }
+        }
 
         function renderStars(count) {
             let starsHtml = '';
@@ -289,11 +602,19 @@
                 const card = document.createElement('div');
                 card.className = `bg-leoCard border ${isSelected ? 'border-blue-500 bg-blue-950/20' : 'border-leoBorder'} p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-gray-600 transition`;
                 
+                const showAdminControls = currentRole === 'MASTER' || currentRole === 'EDITOR';
+
                 card.innerHTML = `
                     <div class="flex-1 space-y-1">
                         <div class="flex items-center space-x-3">
                             <span class="bg-blue-900/60 text-blue-300 font-mono text-xs font-bold px-2 py-0.5 rounded border border-blue-700/50">${item.code}</span>
                             <h3 class="text-sm font-bold text-white">${item.crime}</h3>
+                            ${showAdminControls ? `
+                                <div class="inline-flex gap-2 ml-2">
+                                    <button onclick="openLawModal('${item.code}')" class="text-blue-400 hover:text-blue-300 text-xs"><i class="fa-solid fa-pen"></i></button>
+                                    <button onclick="deleteLaw('${item.code}')" class="text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            ` : ''}
                         </div>
                         <p class="text-xs text-gray-400">${item.desc}</p>
                         ${item.notes !== 'None' ? `<p class="text-xs text-amber-400 font-medium"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Note: ${item.notes}</p>` : ''}
@@ -315,6 +636,63 @@
             });
         }
 
+        function openLawModal(editCode = null) {
+            if (editCode) {
+                const law = penalData.find(l => l.code === editCode);
+                if (law) {
+                    document.getElementById('lawModalTitle').textContent = 'Edit Law';
+                    document.getElementById('lawEditOriginalCode').value = law.code;
+                    document.getElementById('lawCode').value = law.code;
+                    document.getElementById('lawArt').value = law.art;
+                    document.getElementById('lawCrime').value = law.crime;
+                    document.getElementById('lawStars').value = law.stars;
+                    document.getElementById('lawFine').value = law.fine;
+                    document.getElementById('lawDesc').value = law.desc;
+                    document.getElementById('lawNotes').value = law.notes;
+                }
+            } else {
+                document.getElementById('lawModalTitle').textContent = 'Add New Law';
+                document.getElementById('lawForm').reset();
+                document.getElementById('lawEditOriginalCode').value = '';
+            }
+            openModal('lawModal');
+        }
+
+        function saveLaw(e) {
+            e.preventDefault();
+            const origCode = document.getElementById('lawEditOriginalCode').value;
+            const newLaw = {
+                code: document.getElementById('lawCode').value.trim(),
+                art: document.getElementById('lawArt').value,
+                crime: document.getElementById('lawCrime').value.trim(),
+                stars: parseInt(document.getElementById('lawStars').value),
+                fine: parseInt(document.getElementById('lawFine').value),
+                desc: document.getElementById('lawDesc').value.trim(),
+                notes: document.getElementById('lawNotes').value.trim() || 'None'
+            };
+
+            if (origCode) {
+                const index = penalData.findIndex(l => l.code === origCode);
+                if (index > -1) penalData[index] = newLaw;
+            } else {
+                penalData.push(newLaw);
+            }
+
+            saveData();
+            closeModal('lawModal');
+            renderLaws();
+        }
+
+        function deleteLaw(code) {
+            if (confirm(`Are you sure you want to delete ${code}?`)) {
+                penalData = penalData.filter(l => l.code !== code);
+                selectedCharges = selectedCharges.filter(c => c.code !== code);
+                saveData();
+                updateCalculator();
+                renderLaws();
+            }
+        }
+
         window.toggleCharge = function(code) {
             const index = selectedCharges.findIndex(c => c.code === code);
             if (index > -1) {
@@ -331,19 +709,23 @@
             chargeCount.textContent = selectedCharges.length;
             
             if (selectedCharges.length === 0) {
-                selectedChargesList.innerHTML = `<p class="text-gray-500 italic text-center py-4">No charges added yet. Click "+ Add" on any crime to calculate total fine & wanted level.</p>`;
+                selectedChargesList.innerHTML = `<p class="text-gray-500 italic text-center py-4">No charges selected. Click "+" on any penal item to add.</p>`;
                 totalFineDisplay.textContent = '$0';
-                totalStarsDisplay.innerHTML = `<span class="text-gray-600">None</span>`;
+                totalStarsDisplay.innerHTML = `0 ★`;
+                bailStatusDisplay.textContent = 'ELIGIBLE FOR BAIL';
+                bailStatusDisplay.className = 'text-emerald-400 font-semibold';
                 return;
             }
 
             let totalFine = 0;
             let maxStars = 0;
+            let hasNoBail = false;
             selectedChargesList.innerHTML = '';
 
             selectedCharges.forEach(item => {
                 totalFine += item.fine;
                 if (item.stars > maxStars) maxStars = item.stars;
+                if (item.notes.toLowerCase().includes('no bail')) hasNoBail = true;
 
                 const itemEl = document.createElement('div');
                 itemEl.className = 'flex justify-between items-center bg-gray-900 border border-leoBorder p-2 rounded';
@@ -360,7 +742,15 @@
             });
 
             totalFineDisplay.textContent = `$${totalFine.toLocaleString()}`;
-            totalStarsDisplay.innerHTML = renderStars(maxStars);
+            totalStarsDisplay.textContent = `${maxStars} ★`;
+
+            if (hasNoBail) {
+                bailStatusDisplay.textContent = 'NO BAIL';
+                bailStatusDisplay.className = 'text-red-400 font-bold';
+            } else {
+                bailStatusDisplay.textContent = 'ELIGIBLE FOR BAIL';
+                bailStatusDisplay.className = 'text-emerald-400 font-semibold';
+            }
         }
 
         searchInput.addEventListener('input', (e) => {
@@ -395,22 +785,24 @@
 
             let totalFine = selectedCharges.reduce((sum, item) => sum + item.fine, 0);
             let maxStars = Math.max(...selectedCharges.map(item => item.stars));
-            
+            let hasNoBail = selectedCharges.some(item => item.notes.toLowerCase().includes('no bail'));
+
             let summary = `*** LEO ARREST REPORT SUMMARY ***\n`;
             summary += `Charges (${selectedCharges.length}):\n`;
             selectedCharges.forEach(item => {
                 summary += `- ${item.code}: ${item.crime} ($${item.fine.toLocaleString()})\n`;
             });
             summary += `\nTotal Fine: $${totalFine.toLocaleString()}\n`;
-            summary += `Wanted Level: ${maxStars} Star(s)\n`;
+            summary += `Total Stars: ${maxStars} Star(s)\n`;
+            summary += `Bail Status: ${hasNoBail ? 'NO BAIL' : 'ELIGIBLE FOR BAIL'}\n`;
 
             navigator.clipboard.writeText(summary).then(() => {
                 alert('Arrest report summary copied to clipboard!');
             });
         });
 
-        // Initial Render
-        renderLaws();
+        // Initialize UI & Auth
+        updateAuthUI();
     </script>
 </body>
 </html>
